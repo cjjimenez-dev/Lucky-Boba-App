@@ -59,7 +59,10 @@ class _CardPurchasePageState extends State<CardPurchasePage>
   @override
   void initState() {
     super.initState();
+
+    // ── ✅ Start with the passed-in value, then verify from SharedPreferences
     _isCurrentlyOwned = widget.isOwned;
+
     _flipController = AnimationController(
       vsync:    this,
       duration: const Duration(milliseconds: 600),
@@ -67,6 +70,22 @@ class _CardPurchasePageState extends State<CardPurchasePage>
     _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _flipController, curve: Curves.easeInOut),
     );
+
+    // ── ✅ Always re-check from SharedPreferences so it's never stale
+    _syncOwnedStatusFromPrefs();
+  }
+
+  /// Re-reads has_active_card from SharedPreferences and updates UI.
+  /// This ensures even if isOwned=false was passed, we still show
+  /// the correct state if the user already owns a card.
+  Future<void> _syncOwnedStatusFromPrefs() async {
+    final prefs          = await SharedPreferences.getInstance();
+    final bool fromPrefs = prefs.getBool('has_active_card') ?? false;
+
+    if (fromPrefs && !_isCurrentlyOwned) {
+      if (mounted) setState(() => _isCurrentlyOwned = true);
+    }
+
     if (_isCurrentlyOwned) _loadExpiryInfo();
   }
 
@@ -111,8 +130,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
 
   // ── Open GCash app ────────────────────────────────────────────────────────
   Future<void> _openGCash() async {
-    // Try deep link first, fallback to Play Store
-    final Uri gcashDeepLink = Uri.parse('gcash://');
+    final Uri gcashDeepLink  = Uri.parse('gcash://');
     final Uri gcashPlayStore = Uri.parse(
         'https://play.google.com/store/apps/details?id=com.globe.gcash.android');
 
@@ -164,6 +182,10 @@ class _CardPurchasePageState extends State<CardPurchasePage>
       if (!mounted) return;
       Navigator.pop(context);
       if (response.statusCode == 200) {
+        // ── ✅ Update SharedPreferences so other pages stay in sync ──────
+        await prefs.setBool('has_active_card', true);
+        await prefs.setInt('card_id', widget.cardId);
+
         setState(() => _isCurrentlyOwned = true);
         _showSnack('Card Activated! Enjoy your perks. 🎉', Colors.green);
         await _loadExpiryInfo();
@@ -417,7 +439,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
 
                 const SizedBox(height: 16),
 
-                // ── ✅ Open App button ─────────────────────────────────
+                // ── Open App button ────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -486,7 +508,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
   }
 
   void _showExpiryDialog() {
-    final int days   = _daysRemaining ?? 0;
+    final int days    = _daysRemaining ?? 0;
     final bool urgent = days <= 7;
     final Color color = urgent ? Colors.orange : Colors.green;
     showDialog(

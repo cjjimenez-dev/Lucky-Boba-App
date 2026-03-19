@@ -4,16 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../config/app_config.dart'; // ✅ No more hardcoded URLs
+import '../config/app_config.dart';
 
-// The two perk names — must match QrPerkPage's perkName exactly.
 const List<String> _kPerkNames = [
   'Buy 1, Get 1 Free',
   '10% Off All Items',
 ];
 
 class HomePage extends StatefulWidget {
-  /// Switches DashboardPage to the Cards tab (index 2).
   final VoidCallback? onGoToCards;
 
   const HomePage({super.key, this.onGoToCards});
@@ -23,7 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // ── Brand tokens ─────────────────────────────────────────────────────────
   static const Color _purple   = Color(0xFF7C14D4);
   static const Color _orange   = Color(0xFFFF8C00);
   static const Color _textDark = Color(0xFF1A1A2E);
@@ -51,34 +48,62 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _checkActiveCard() async {
+    final prefs       = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('user_id');
+
+    // ── Step 1: Apply SharedPreferences instantly — no flicker ────────────
+    final bool cached = prefs.getBool('has_active_card') ?? false;
+    debugPrint('🔍 [HomePage] cached has_active_card = $cached');
+    if (mounted) {
+      setState(() => _hasActiveCard = cached);
+    }
+
+    if (userId == null) {
+      debugPrint('🔍 [HomePage] user_id is null — skipping API call');
+      if (mounted) setState(() => _loadingCard = false);
+      return;
+    }
+
+    // ── Step 2: Verify with API in background ─────────────────────────────
     try {
-      final prefs   = await SharedPreferences.getInstance();
-      final int? userId = prefs.getInt('user_id');
-      if (userId == null) {
-        if (mounted) setState(() => _loadingCard = false);
-        return;
-      }
+      debugPrint('🔍 [HomePage] calling check-card-status/$userId');
       final response = await http.get(
-        // ✅ AppConfig instead of hardcoded IP
         Uri.parse('${AppConfig.apiUrl}/check-card-status/$userId'),
       ).timeout(const Duration(seconds: 8));
 
       if (!mounted) return;
+      debugPrint('🔍 [HomePage] API response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _hasActiveCard = data['has_active_card'] == true;
+        final data         = jsonDecode(response.body);
+        final bool hasCard = data['has_active_card'] == true;
+
+        await prefs.setBool('has_active_card', hasCard);
+        if (hasCard) {
+          final int? cardId = data['card_id'] is int
+              ? data['card_id']
+              : int.tryParse(data['card_id']?.toString() ?? '');
+          if (cardId != null) await prefs.setInt('card_id', cardId);
+        } else {
+          await prefs.remove('card_id');
+        }
+
+        debugPrint('🔍 [HomePage] API has_active_card = $hasCard');
+        if (mounted) setState(() => _hasActiveCard = hasCard);
       }
-    } catch (_) {
-      // default false — show "no card" state gracefully
+    } catch (e) {
+      debugPrint('🔍 [HomePage] API error: $e');
+    } finally {
+      if (mounted) setState(() => _loadingCard = false);
     }
   }
 
   Future<void> _loadPerkUsage() async {
-    final prefs   = await SharedPreferences.getInstance();
+    final prefs        = await SharedPreferences.getInstance();
     final String today = DateTime.now().toIso8601String().substring(0, 10);
     final Map<String, bool> used = {};
     for (final name in _kPerkNames) {
-      final String key   = 'qr_date_$name';
+      final String  key   = 'qr_date_$name';
       final String? saved = prefs.getString(key);
       used[name] = saved == today;
     }
@@ -113,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: _StatCard(
                       label:     'Lucky Points',
-                      value:     '0 pts',
+                      value:     'Coming Soon',
                       icon:      Icons.star_rounded,
                       iconColor: _orange,
                       badge:     null,
@@ -715,8 +740,8 @@ class _TappableCardState extends State<_TappableCard>
                         BoxShadow(
                           color: const Color(0xFF7C14D4)
                               .withValues(alpha: 0.22 * _t.value),
-                          blurRadius:  24 * _t.value,
-                          spreadRadius: 2 * _t.value,
+                          blurRadius:   24 * _t.value,
+                          spreadRadius: 2  * _t.value,
                           offset: Offset(0, 6 * _t.value),
                         ),
                       ],

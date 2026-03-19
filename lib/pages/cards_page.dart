@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'card_purchase_page.dart';
-import '../config/app_config.dart'; // ✅ No more hardcoded URLs
+import '../config/app_config.dart';
 
 class CardsPage extends StatefulWidget {
   const CardsPage({super.key});
@@ -43,41 +43,79 @@ class _CardsPageState extends State<CardsPage> {
   Future<void> _checkSubscription() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-    try {
-      final prefs      = await SharedPreferences.getInstance();
-      final int? userId = prefs.getInt('user_id');
-      if (userId == null) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
+
+    final prefs       = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('user_id');
+
+    // ── ✅ Step 1: Apply SharedPreferences immediately so UI never flashes wrong state
+    final bool cachedHasCard = prefs.getBool('has_active_card') ?? false;
+    final int? cachedCardId  = prefs.getInt('card_id');
+
+    if (cachedHasCard && cachedCardId != null) {
+      final Map<String, dynamic>? cachedCard = cardList.cast<Map<String, dynamic>?>().firstWhere(
+            (c) => c?['id'] == cachedCardId,
+        orElse: () => cardList[0],
+      );
+      if (mounted) {
+        setState(() {
+          _hasActiveCard  = true;
+          _activeCardData = cachedCard;
+          _isLoading      = false;
+        });
       }
+    }
+
+    // ── ✅ Step 2: Still verify with API in background to stay in sync
+    if (userId == null) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
       final response = await http.get(
-        // ✅ AppConfig instead of hardcoded IP
         Uri.parse('${AppConfig.apiUrl}/check-card-status/$userId'),
       ).timeout(const Duration(seconds: 10));
 
       if (!mounted) return;
+
       if (response.statusCode == 200) {
-        final data          = jsonDecode(response.body);
-        final bool hasCard  = data['has_active_card'] == true;
+        final data         = jsonDecode(response.body);
+        final bool hasCard = data['has_active_card'] == true;
+
         Map<String, dynamic>? foundCard;
         if (hasCard) {
           final int? activeCardId = data['card_id'] is int
               ? data['card_id']
               : int.tryParse(data['card_id'].toString());
+
           foundCard = cardList.firstWhere(
                 (c) => c['id'] == activeCardId,
             orElse: () => cardList[0],
           );
+
+          // ── ✅ Keep SharedPreferences in sync with API response
+          await prefs.setBool('has_active_card', true);
+          if (activeCardId != null) await prefs.setInt('card_id', activeCardId);
+        } else {
+          // Card expired or revoked — clear cache
+          await prefs.setBool('has_active_card', false);
+          await prefs.remove('card_id');
         }
-        setState(() {
-          _hasActiveCard = hasCard;
-          _activeCardData = foundCard;
-          _isLoading      = false;
-        });
+
+        if (mounted) {
+          setState(() {
+            _hasActiveCard  = hasCard;
+            _activeCardData = foundCard;
+            _isLoading      = false;
+          });
+        }
       } else {
-        setState(() => _isLoading = false);
+        // API error — keep showing cached state, just stop loading
+        if (mounted) setState(() => _isLoading = false);
       }
     } catch (e) {
+      debugPrint('Card status check failed: $e');
+      // Network error — keep showing cached state, just stop loading
       if (mounted) setState(() => _isLoading = false);
     }
   }

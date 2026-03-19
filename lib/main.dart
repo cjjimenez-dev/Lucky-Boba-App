@@ -217,13 +217,17 @@ class _LoginPageState extends State<LoginPage>
       if (!mounted) return;
       setState(() => _facebookLoading = false);
 
+      // Facebook login doesn't go through Laravel so no card data
       await _saveUserAndNavigate(
         {
           'user': {
-            'id':    firebaseUser.uid,
-            'name':  firebaseUser.displayName ?? 'Guest',
-            'email': firebaseUser.email ?? '',
-            'role':  'customer',
+            'id':              firebaseUser.uid,
+            'name':            firebaseUser.displayName ?? 'Guest',
+            'email':           firebaseUser.email ?? '',
+            'role':            'customer',
+            'has_active_card': false,
+            'card_id':         null,
+            'card_expires_at': null,
           }
         },
         firebaseUser.email ?? '',
@@ -253,6 +257,14 @@ class _LoginPageState extends State<LoginPage>
     final String userRole  = userObj['role']  ?? 'customer';
     final String userEmail = userObj['email'] ?? fallbackEmail;
 
+    // ── ✅ Read card data from login response ─────────────────────────────
+    final bool hasActiveCard = userObj['has_active_card'] == true;
+    final int? cardId        = userObj['card_id'] is int
+        ? userObj['card_id']
+        : int.tryParse(userObj['card_id']?.toString() ?? '');
+    final String? cardExpiresAt = userObj['card_expires_at']?.toString();
+    // ──────────────────────────────────────────────────────────────────────
+
     final prefs = await SharedPreferences.getInstance();
 
     // Save as int if Laravel, as string if Firebase
@@ -266,7 +278,22 @@ class _LoginPageState extends State<LoginPage>
     await prefs.setString('userRole',  userRole);
     await prefs.setString('userEmail', userEmail);
 
-    debugPrint('✅ Login → user_id=$userKey name=$userName role=$userRole');
+    // ── ✅ Save card status to SharedPreferences ───────────────────────────
+    await prefs.setBool('has_active_card', hasActiveCard);
+    if (cardId != null) {
+      await prefs.setInt('card_id', cardId);
+    } else {
+      await prefs.remove('card_id');
+    }
+    if (cardExpiresAt != null) {
+      await prefs.setString('card_expires_at', cardExpiresAt);
+    } else {
+      await prefs.remove('card_expires_at');
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
+    debugPrint('✅ Login → user_id=$userKey name=$userName role=$userRole '
+        'has_active_card=$hasActiveCard card_id=$cardId');
 
     // ✅ Use string key — works for both Laravel int IDs and Firebase string UIDs
     final bool hasAccepted =
