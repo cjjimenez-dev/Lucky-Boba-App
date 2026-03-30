@@ -1,7 +1,7 @@
 // FILE: lib/pages/landing_promo_page.dart
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../dashboard.dart';
+import '../pages/dashboard.dart';
 
 class LandingPromoPage extends StatefulWidget {
   const LandingPromoPage({super.key});

@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services") // ← ADD THIS
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -38,7 +38,6 @@ flutter {
     source = "../.."
 }
 
-// ── ADD THIS BLOCK at the bottom ──────────────────────────────────────────────
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation("com.google.firebase:firebase-auth")

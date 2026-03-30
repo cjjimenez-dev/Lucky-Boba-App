@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'checkout_page.dart';
 
 // ── Global cart state ────────────────────────────────────────────────────────
-// Cart is managed locally — no API call needed until checkout
 List<Map<String, dynamic>> myCart = [];
 
 class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+  final String selectedStore;
+  const CartPage({super.key, required this.selectedStore});
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -22,7 +22,6 @@ class _CartPageState extends State<CartPage> {
   static const Color _textDark = Color(0xFF1A1A2E);
   static const Color _textMid  = Color(0xFF6B6B8A);
 
-  // ── Cart total ───────────────────────────────────────────────────────────
   double get cartTotal => myCart.fold(0, (sum, item) {
     final p = item['totalPrice'];
     if (p is double) return sum + p;
@@ -133,8 +132,8 @@ class _CartPageState extends State<CartPage> {
                         decoration: BoxDecoration(
                           color: Colors.red.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(20),
-                          border:
-                          Border.all(color: Colors.red.withOpacity(0.2)),
+                          border: Border.all(
+                              color: Colors.red.withOpacity(0.2)),
                         ),
                         child: Text(
                           'Clear all',
@@ -226,7 +225,10 @@ class _CartPageState extends State<CartPage> {
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const CheckoutPage()),
+                            builder: (_) => CheckoutPage(
+                              selectedStore: widget.selectedStore,
+                            ),
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _purple,
@@ -382,7 +384,6 @@ class _CartPageState extends State<CartPage> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // ✅ Remove single item button
                     GestureDetector(
                       onTap: () => setState(() => myCart.removeAt(index)),
                       child: Container(

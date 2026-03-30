@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart'; // ✅ Firebase
 import 'dart:convert';
-import 'config/app_config.dart'; // ✅ No more hardcoded URLs
+import '../config/app_config.dart'; // ✅ No more hardcoded URLs
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

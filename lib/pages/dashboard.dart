@@ -6,13 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import 'state/profile_notifier.dart';
-import 'widgets/custom_navbar.dart';
-import 'pages/home_page.dart';
-import 'pages/order_page.dart';
-import 'pages/cards_page.dart';
-import 'pages/stores_page.dart';
-import 'pages/profile_page.dart';
+import '../state/profile_notifier.dart';
+import '../widgets/custom_navbar.dart';
+import '../pages/home_page.dart';       // was ../menu/home_page.dart
+import '../pages/order_page.dart';
+import '../cards/cards_page.dart';
+import '../pages/stores_page.dart';     // was ../menu/stores_page.dart (check your actual path)
+import '../account/profile_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -25,22 +25,30 @@ class _DashboardPageState extends State<DashboardPage> {
   int    _selectedIndex = 0;
   String _userName      = '';
 
+  // ── Cached pages — built once so state is preserved across tab switches ──
+  late final List<Widget> _pages;
+
   static const Color _bg       = Color(0xFFFAFAFA);
   static const Color _purple   = Color(0xFF7C14D4);
   static const Color _surface  = Color(0xFFF2EEF8);
   static const Color _textDark = Color(0xFF1A1A2E);
   static const Color _textMid  = Color(0xFF6B6B8A);
 
-  List<Widget> get _pages => const [
-    HomePage(),
-    OrderPage(),
-    CardsPage(),
-    StoresPage(),
-  ];
+  // Cards tab index — update if your tab order ever changes
+  static const int _cardsTabIndex = 2;
 
   @override
   void initState() {
     super.initState();
+
+    // Build pages once, wiring the callback so HomePage can switch to Cards
+    _pages = [
+      HomePage(onGoToCards: _goToCards),
+      const OrderPage(),
+      const CardsPage(),
+      const StoresPage(),
+    ];
+
     _loadUserData();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor:          Colors.transparent,
@@ -48,10 +56,16 @@ class _DashboardPageState extends State<DashboardPage> {
     ));
   }
 
+  /// Switches the bottom nav to the Cards tab.
+  void _goToCards() {
+    if (_selectedIndex != _cardsTabIndex) {
+      setState(() => _selectedIndex = _cardsTabIndex);
+    }
+  }
+
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // ✅ Use per-user key for profile image (matches profile_page.dart fix)
     final int?    userId    = prefs.getInt('user_id');
     final String? userIdStr = prefs.getString('user_id_str');
     final String  userKey   = userId?.toString() ?? userIdStr ?? '';
@@ -63,7 +77,6 @@ class _DashboardPageState extends State<DashboardPage> {
       _userName = prefs.getString('userName') ?? 'Guest';
     });
 
-    // Seed the notifier so avatar shows correctly on first load
     profileImageNotifier.value = prefs.getString(imageKey);
   }
 
@@ -97,7 +110,7 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           children: [
 
-            // ── HEADER ───────────────────────────────────────────────────
+            // ── HEADER ──────────────────────────────────────────────────
             if (showHeader)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
@@ -106,7 +119,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    // ── Greeting ──────────────────────────────────────────
+                    // Greeting
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,13 +148,13 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
 
-                    // ── Avatar (reactive) ─────────────────────────────────
+                    // Avatar (reactive)
                     GestureDetector(
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (_) => const ProfilePage()),
-                      ).then((_) => _loadUserData()), // ✅ Refresh after returning from profile
+                      ).then((_) => _loadUserData()),
                       child: ValueListenableBuilder<String?>(
                         valueListenable: profileImageNotifier,
                         builder: (context, imagePath, _) {
@@ -185,12 +198,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
             // ── PAGE CONTENT ─────────────────────────────────────────────
             Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: SizedBox(
-                  key: ValueKey(_selectedIndex),
-                  child: _pages[_selectedIndex],
-                ),
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: _pages,
               ),
             ),
           ],
