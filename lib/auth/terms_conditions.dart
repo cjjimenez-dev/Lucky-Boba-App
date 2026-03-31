@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'landing_promo_page.dart';
-import 'main.dart';
+import '../main.dart';
 
 class TermsPage extends StatelessWidget {
   const TermsPage({super.key});

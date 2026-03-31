@@ -12,10 +12,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../config/app_config.dart';
 
-import 'signup.dart';
-import 'terms_conditions.dart';
-import 'landing_promo_page.dart';
-import 'onboarding_page.dart';
+import 'auth/signup.dart';
+import 'auth/terms_conditions.dart';
+import 'auth/landing_promo_page.dart';
+import 'auth/onboarding_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
