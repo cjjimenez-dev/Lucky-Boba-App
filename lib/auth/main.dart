@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import '../firebase_options.dart'; // ✅ FIXED: was '../lib/firebase_options.dart'
 import 'package:google_sign_in/google_sign_in.dart';
 import '../config/app_config.dart';
 
@@ -16,11 +17,12 @@ import 'signup.dart';
 import 'terms_conditions.dart';
 import 'landing_promo_page.dart';
 import 'onboarding_page.dart';
-import '../pages/dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // ✅ FIXED: was missing options
+  );
 
   final prefs = await SharedPreferences.getInstance();
   final bool onboardingDone  = prefs.getBool('onboarding_done')  ?? false;
@@ -159,8 +161,14 @@ class _LoginPageState extends State<LoginPage>
     try {
       final response = await http.post(
         Uri.parse('${AppConfig.apiUrl}/login'),
-        headers: {'Content-Type': 'application/json'},
-        body:    jsonEncode({'email': email, 'password': password}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept':       'application/json',
+        },
+        body: jsonEncode({
+          'email':    email,
+          'password': password,
+        }),
       ).timeout(const Duration(seconds: 10));
 
       if (!mounted) return;
@@ -297,7 +305,6 @@ class _LoginPageState extends State<LoginPage>
         : int.tryParse(userObj['card_id']?.toString() ?? '');
     final String? cardExpiresAt = userObj['card_expires_at']?.toString();
 
-    // 🚨 FIX: Check the root 'data' object for the token first!
     final String sessionToken = data['token']?.toString() ??
         userObj['token']?.toString() ??
         userObj['api_token']?.toString() ??
@@ -312,7 +319,7 @@ class _LoginPageState extends State<LoginPage>
     }
 
     await prefs.setString('session_token', sessionToken);
-    await prefs.setString('token', sessionToken); // Saving as both just in case!
+    await prefs.setString('token', sessionToken);
     await prefs.setString('userName',  userName);
     await prefs.setString('userRole',  userRole);
     await prefs.setString('userEmail', userEmail);

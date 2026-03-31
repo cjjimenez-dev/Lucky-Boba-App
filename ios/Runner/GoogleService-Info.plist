@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>822257671635-nvrqjdonvf3sqoi66a0ldc47jbbdrlub.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.822257671635-nvrqjdonvf3sqoi66a0ldc47jbbdrlub</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>822257671635-9bq8u2do11r5bqnrk0i0vloriprp5boa.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAFktFaWom6OWZJPfrgGNPXiNysl4CbrCU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>822257671635</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.luckybobaApp</string>
+	<key>PROJECT_ID</key>
+	<string>luckyboba-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>luckyboba-app.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:822257671635:ios:806340813cde7444d5e326</string>
+</dict>
+</plist>

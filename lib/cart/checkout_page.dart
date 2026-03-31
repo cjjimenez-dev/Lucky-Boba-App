@@ -35,11 +35,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String?               _selectedPerk;
   bool                  _cardLoading = true;
 
-  static const Map<String, String> _perkLabels = {
-    'buy_1_take_1':   'Buy 1 Take 1 (cheapest free)',
-    '10_percent_off': '10% Off total',
-  };
-
   final List<Map<String, dynamic>> _paymentOptions = [
     {'label': 'GCash', 'icon': Icons.account_balance_wallet_rounded},
     {'label': 'Maya',  'icon': Icons.credit_card_rounded},
@@ -54,9 +49,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
   // ── Fetch active loyalty card ──────────────────────────────────────────────
   Future<void> _fetchActiveCard() async {
     try {
-      final prefs  = await SharedPreferences.getInstance();
-      final token  = prefs.getString('session_token') ?? '';
-      final userId = prefs.getInt('user_id') ?? 0;
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('session_token') ?? '';
+
+      // Handle userId stored as int OR string
+      int userId = prefs.getInt('user_id') ?? 0;
+      if (userId == 0) {
+        final strId = prefs.getString('user_id_str') ?? prefs.getString('user_id') ?? '';
+        userId = int.tryParse(strId) ?? 0;
+      }
+
+      debugPrint('🃏 CheckoutPage userId=$userId token=${token.isEmpty ? "EMPTY" : "OK"}');
+
+      if (userId == 0) {
+        debugPrint('🃏 userId is 0 — skipping card fetch');
+        if (mounted) setState(() => _cardLoading = false);
+        return;
+      }
 
       final res = await http.get(
         Uri.parse('${AppConfig.apiUrl}/check-card-status/$userId'),
@@ -66,23 +75,68 @@ class _CheckoutPageState extends State<CheckoutPage> {
         },
       ).timeout(const Duration(seconds: 8));
 
+      debugPrint('🃏 Card API status: ${res.statusCode}');
+      debugPrint('🃏 Card API body:   ${res.body}');
+
+      if (!mounted) return;
+
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
+        debugPrint('🃏 has_active_card: ${data['has_active_card']}');
+        debugPrint('🃏 card object:     ${data['card']}');
+
         if (data['has_active_card'] == true && data['card'] != null) {
-          if (mounted) {
-            setState(() {
-              _activeCard  = Map<String, dynamic>.from(data['card']);
-              _cardLoading = false;
-            });
-          }
+          setState(() {
+            _activeCard  = Map<String, dynamic>.from(data['card']);
+            _cardLoading = false;
+          });
+          debugPrint('🃏 _activeCard set: $_activeCard');
           return;
         }
       }
-    } catch (_) {}
-    if (mounted) setState(() => _cardLoading = false);
+    } catch (e) {
+      debugPrint('🃏 Card fetch ERROR: $e');
+    }
+
+    if (mounted) setState(() { _activeCard = null; _cardLoading = false; });
+  }
+
+  // ── Classic Milktea helpers ────────────────────────────────────────────────
+
+  /// Returns true if ANY item in the cart belongs to Classic Milktea category
+  bool get _cartHasClassicMilktea {
+    return myCart.any((item) {
+      final category = (item['category'] ?? '').toString().toUpperCase().trim();
+      return category.contains('CLASSIC MILKTEA') ||
+          category.contains('CLASSIC MILK TEA') ||
+          category == 'CLASSIC';
+    });
+  }
+
+  /// Returns the unit price of the cheapest Classic Milktea item in cart
+  double get _cheapestClassicMilkteaPrice {
+    final classicItems = myCart.where((item) {
+      final category = (item['category'] ?? '').toString().toUpperCase().trim();
+      return category.contains('CLASSIC MILKTEA') ||
+          category.contains('CLASSIC MILK TEA') ||
+          category == 'CLASSIC';
+    }).toList();
+
+    if (classicItems.isEmpty) return 0.0;
+
+    double cheapest = double.maxFinite;
+    for (final item in classicItems) {
+      final p = item['unitPrice'];
+      final price = p is double    ? p
+          : p is int       ? p.toDouble()
+          : double.tryParse(p?.toString() ?? '0') ?? 0.0;
+      if (price < cheapest) cheapest = price;
+    }
+    return cheapest == double.maxFinite ? 0.0 : cheapest;
   }
 
   // ── Totals ─────────────────────────────────────────────────────────────────
+
   double get _rawTotal => myCart.fold(0.0, (sum, item) {
     final p = item['totalPrice'];
     if (p is double) return sum + p;
@@ -91,21 +145,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
   });
 
   double get cartTotal {
+    // 10% off applies to ALL items
     if (_selectedPerk == '10_percent_off') return _rawTotal * 0.90;
+
+    // B1T1 only discounts the cheapest Classic Milktea item
     if (_selectedPerk == 'buy_1_take_1') {
-      if (myCart.isEmpty) return _rawTotal;
-      double minPrice = double.maxFinite;
-      for (final item in myCart) {
-        final p = item['unitPrice'];
-        final price = p is double
-            ? p
-            : p is int
-            ? p.toDouble()
-            : double.tryParse(p?.toString() ?? '0') ?? 0.0;
-        if (price < minPrice) minPrice = price;
-      }
-      return (_rawTotal - minPrice).clamp(0, double.maxFinite);
+      return (_rawTotal - _cheapestClassicMilkteaPrice).clamp(0, double.maxFinite);
     }
+
     return _rawTotal;
   }
 
@@ -129,6 +176,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final customerName = prefs.getString('user_name') ?? 'App Customer';
       final customerCode = prefs.getString('user_code') ?? '';
       final userId       = prefs.getInt('user_id') ?? 0;
+
+      debugPrint('🔑 token: "$token"');
+      debugPrint('🔑 userId: $userId');
 
       final siNumber  = 'APP-${DateTime.now().millisecondsSinceEpoch}';
       final qrPayload =
@@ -160,8 +210,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           'quantity':     item['quantity'],
           'unit_price':   item['unitPrice'],
           'total_price':  item['totalPrice'],
+          'category':     item['category'],
           if (item['cupSize']  != null) 'cup_size': item['cupSize'],
-          if (item['add_ons'] != null) 'add_ons':  item['add_ons'],
+          if (item['add_ons'] != null)  'add_ons':  item['add_ons'],
         })
             .toList(),
       });
@@ -208,6 +259,38 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           );
         }
+
+      } else if (response.statusCode == 409) {
+        // Perk already used today
+        if (mounted) {
+          setState(() { _isProcessing = false; _selectedPerk = null; });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('This perk was already used today.',
+                style: GoogleFonts.poppins(color: Colors.white)),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ));
+        }
+        return;
+
+      } else if (response.statusCode == 422) {
+        // Perk category validation failed (B1T1 without Classic Milktea)
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() { _isProcessing = false; _selectedPerk = null; });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              data['message'] ?? 'Buy 1 Take 1 is only valid for Classic Milktea items.',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ));
+        }
+        return;
+
       } else {
         final data = json.decode(response.body);
         if (mounted) {
@@ -223,8 +306,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       debugPrint('Checkout error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -305,7 +387,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  // ── Loading shimmer for card perk ──────────────────────────────────────────
+  // ── Loading shimmer ────────────────────────────────────────────────────────
   Widget _buildPerkLoadingShimmer() {
     return Container(
       height: 56,
@@ -318,8 +400,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: SizedBox(
           width:  22,
           height: 22,
-          child:  CircularProgressIndicator(
-              color: _purple, strokeWidth: 2),
+          child:  CircularProgressIndicator(color: _purple, strokeWidth: 2),
         ),
       ),
     );
@@ -327,6 +408,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // ── Perk selector ──────────────────────────────────────────────────────────
   Widget _buildPerkSelector() {
+    final b1t1Claimed   = _claimedPerks.contains('buy_1_take_1');
+    final b1t1Qualifies = _cartHasClassicMilktea;
+    final b1t1Disabled  = b1t1Claimed || !b1t1Qualifies;
+    final pct10Claimed  = _claimedPerks.contains('10_percent_off');
+
+    // Auto-deselect B1T1 if cart no longer qualifies
+    if (_selectedPerk == 'buy_1_take_1' && !b1t1Qualifies) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _selectedPerk = null);
+      });
+    }
+
     return Container(
       decoration: BoxDecoration(
         color:        Colors.white,
@@ -335,7 +428,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       child: Column(
         children: [
-          // No perk
+          // ── No perk ───────────────────────────────────────────────────
           _perkTile(
             id:       null,
             label:    'No perk',
@@ -344,30 +437,51 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           const Divider(height: 1, color: Color(0xFFEAEAF0)),
 
-          // Available perks
-          ...['buy_1_take_1', '10_percent_off'].map((perkId) {
-            final claimed = _claimedPerks.contains(perkId);
-            return Column(
-              children: [
-                _perkTile(
-                  id:       perkId,
-                  label:    _perkLabels[perkId] ?? perkId,
-                  sublabel: claimed ? 'Already used today' : 'Tap to apply',
-                  icon:     perkId == 'buy_1_take_1'
-                      ? Icons.coffee_rounded
-                      : Icons.percent_rounded,
-                  disabled: claimed,
-                ),
-                const Divider(height: 1, color: Color(0xFFEAEAF0)),
-              ],
-            );
-          }),
+          // ── Buy 1 Take 1 — Classic Milktea only ───────────────────────
+          _perkTile(
+            id:      'buy_1_take_1',
+            label:   'Buy 1 Take 1',
+            sublabel: b1t1Claimed
+                ? 'Already used today'
+                : !b1t1Qualifies
+                ? 'Requires a Classic Milktea in your cart'
+                : '1 Classic Milktea is free',
+            icon:          Icons.coffee_rounded,
+            disabled:      b1t1Disabled,
+            showTag:       !b1t1Claimed && !b1t1Qualifies,
+            tagText:       'Classic Milktea only',
+            previewAmount: (!b1t1Disabled && b1t1Qualifies)
+                ? '-₱${_cheapestClassicMilkteaPrice.toStringAsFixed(2)}'
+                : null,
+          ),
+          const Divider(height: 1, color: Color(0xFFEAEAF0)),
 
-          // Discount preview
+          // ── 10% Off — ALL items ───────────────────────────────────────
+          _perkTile(
+            id:       '10_percent_off',
+            label:    '10% Off',
+            sublabel: pct10Claimed
+                ? 'Already used today'
+                : 'Applies to all items in cart',
+            icon:          Icons.percent_rounded,
+            disabled:      pct10Claimed,
+            showTag:       false,
+            tagText:       '',
+            previewAmount: !pct10Claimed
+                ? '-₱${(_rawTotal * 0.10).toStringAsFixed(2)}'
+                : null,
+          ),
+          const Divider(height: 1, color: Color(0xFFEAEAF0)),
+
+          // ── Active discount summary ───────────────────────────────────
           if (_selectedPerk != null)
-            Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF16A34A).withValues(alpha: 0.05),
+                borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(16)),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -376,19 +490,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       const Icon(Icons.local_offer_rounded,
                           size: 14, color: _green),
                       const SizedBox(width: 6),
-                      Text('Discount applied',
-                          style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: _green)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Discount applied',
+                              style: GoogleFonts.poppins(
+                                fontSize:   13,
+                                fontWeight: FontWeight.w600,
+                                color:      _green,
+                              )),
+                          Text(
+                            _selectedPerk == 'buy_1_take_1'
+                                ? 'Cheapest Classic Milktea is free'
+                                : '10% off on all items',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              color: const Color(0xFF16A34A).withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  Text('-₱${_discountAmount.toStringAsFixed(2)}',
-                      style: GoogleFonts.poppins(
-                        fontSize:   14,
-                        fontWeight: FontWeight.w700,
-                        color:      _green,
-                      )),
+                  Text(
+                    '-₱${_discountAmount.toStringAsFixed(2)}',
+                    style: GoogleFonts.poppins(
+                      fontSize:   15,
+                      fontWeight: FontWeight.w800,
+                      color:      _green,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -397,12 +528,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  // ── Perk tile ──────────────────────────────────────────────────────────────
   Widget _perkTile({
     required String?  id,
     required String   label,
     required String   sublabel,
     required IconData icon,
-    bool disabled = false,
+    bool    disabled      = false,
+    bool    showTag       = false,
+    String  tagText       = '',
+    String? previewAmount,
   }) {
     final selected = _selectedPerk == id;
     return InkWell(
@@ -412,6 +547,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
+            // ── Icon circle ─────────────────────────────────────────────
             Container(
               width:  38,
               height: 38,
@@ -419,7 +555,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 color: disabled
                     ? Colors.grey.shade100
                     : selected
-                    ? _purple.withOpacity(0.10)
+                    ? _purple.withValues(alpha: 0.10)
                     : _surface,
                 shape: BoxShape.circle,
               ),
@@ -432,19 +568,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       : _textMid),
             ),
             const SizedBox(width: 12),
+
+            // ── Label + sublabel ────────────────────────────────────────
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: GoogleFonts.poppins(
-                        fontSize:   13,
-                        fontWeight: FontWeight.w600,
-                        color:      disabled ? Colors.grey : _textDark,
-                        decoration: disabled
-                            ? TextDecoration.lineThrough
-                            : null,
-                      )),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(label,
+                            style: GoogleFonts.poppins(
+                              fontSize:   13,
+                              fontWeight: FontWeight.w600,
+                              color:      disabled ? Colors.grey : _textDark,
+                              decoration: disabled && _claimedPerks.contains(id)
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            )),
+                      ),
+                      if (showTag && tagText.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _orange.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(tagText,
+                              style: GoogleFonts.poppins(
+                                fontSize:   9,
+                                fontWeight: FontWeight.w700,
+                                color:      _orange,
+                              )),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
                   Text(sublabel,
                       style: GoogleFonts.poppins(
                           fontSize: 11,
@@ -452,6 +614,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
+
+            // ── Savings preview (shown only when not selected) ──────────
+            if (previewAmount != null && !disabled && !selected) ...[
+              const SizedBox(width: 6),
+              Text(previewAmount,
+                  style: GoogleFonts.poppins(
+                    fontSize:   12,
+                    fontWeight: FontWeight.w700,
+                    color:      const Color(0xFF16A34A).withValues(alpha: 0.8),
+                  )),
+            ],
+            const SizedBox(width: 8),
+
+            // ── Radio button ────────────────────────────────────────────
             Icon(
               selected
                   ? Icons.radio_button_checked
@@ -544,11 +720,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget _buildOrderTypeToggle() {
     return Row(
       children: [
-        Expanded(
-            child: _orderTypeCard('Dine In', Icons.storefront_rounded)),
+        Expanded(child: _orderTypeCard('Dine In',  Icons.storefront_rounded)),
         const SizedBox(width: 12),
-        Expanded(
-            child: _orderTypeCard('Take Out', Icons.shopping_bag_rounded)),
+        Expanded(child: _orderTypeCard('Take Out', Icons.shopping_bag_rounded)),
       ],
     );
   }
@@ -590,7 +764,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected
-              ? _purple.withOpacity(0.05)
+              ? _purple.withValues(alpha: 0.05)
               : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
@@ -625,18 +799,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-              color:      Colors.black.withOpacity(0.05),
+              color:      Colors.black.withValues(alpha: 0.05),
               blurRadius: 10)
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Discount breakdown
+          // ── Discount breakdown ────────────────────────────────────────
           if (_selectedPerk != null) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -655,10 +828,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Card discount',
-                    style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color:    const Color(0xFF16A34A))),
+                Text(
+                  _selectedPerk == 'buy_1_take_1'
+                      ? 'B1T1 discount'
+                      : '10% discount',
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, color: const Color(0xFF16A34A)),
+                ),
                 Text('-₱${_discountAmount.toStringAsFixed(2)}',
                     style: GoogleFonts.poppins(
                         fontSize:   12,
@@ -711,6 +887,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  // ── Section label ──────────────────────────────────────────────────────────
   Widget _sectionLabel(String label, {String? subtitle}) {
     return Row(
       children: [
