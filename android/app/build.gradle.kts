@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.luckyboba_app"
+    namespace = "com.luckyboba.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.luckyboba_app"
+        applicationId = "com.luckyboba.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

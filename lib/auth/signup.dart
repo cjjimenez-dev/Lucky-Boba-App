@@ -124,8 +124,11 @@ class _SignupPageState extends State<SignupPage>
 
       // ── Step 2: Register in Laravel backend ──────────────────────────────
       final response = await http.post(
-        Uri.parse('${AppConfig.apiUrl}/register'), // ✅ No hardcoded URL
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('${AppConfig.apiUrl}/register'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept':       'application/json',
+        },
         body: jsonEncode({
           'name':     name,
           'email':    email,
