@@ -41,7 +41,6 @@ jobs:
           else
             echo "value=development" >> $GITHUB_OUTPUT
           fi
-          # Sanitize branch name — replace / with - for artifact naming
           SAFE_BRANCH=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
           echo "branch=$SAFE_BRANCH" >> $GITHUB_OUTPUT
 
@@ -96,6 +95,18 @@ jobs:
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Distribute APK via Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: lucky-boba-team
+          file: build/app/outputs/flutter-apk/app-release.apk
+          releaseNotes: |
+            Version: v${{ github.run_number }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
 
   # ============================================================
   # STAGING BUILD — triggers on push to staging only
