@@ -1,0 +1,126 @@
+name: Lucky Boba Flutter CI
+
+on:
+  push:
+    branches: [ main, staging, development, 'feature/**' ]
+  pull_request:
+    branches: [ main, staging, development ]
+
+jobs:
+  # ============================================================
+  # FLUTTER BUILD — runs on every push to validate the app
+  # ============================================================
+  flutter-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Set APP_ENV
+        id: env
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "value=production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            echo "value=staging" >> $GITHUB_OUTPUT
+          else
+            echo "value=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --dart-define=APP_ENV=${{ steps.env.outputs.value }}
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lucky-boba-${{ github.ref_name }}-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
+
+  # ============================================================
+  # PRODUCTION RELEASE — triggers on push to main only
+  # ============================================================
+  release-production:
+    runs-on: ubuntu-latest
+    needs: flutter-build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK (Production)
+        run: |
+          flutter build apk --release \
+            --dart-define=APP_ENV=production
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Lucky Boba v${{ github.run_number }} (Production)"
+          body: |
+            Auto-release from main branch.
+            API: https://luckybobastores.com/api
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================
+  # STAGING BUILD — triggers on push to staging only
+  # ============================================================
+  release-staging:
+    runs-on: ubuntu-latest
+    needs: flutter-build
+    if: github.ref == 'refs/heads/staging'
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK (Staging)
+        run: |
+          flutter build apk --release \
+            --dart-define=APP_ENV=staging
+
+      - name: Upload Staging APK as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lucky-boba-staging-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
