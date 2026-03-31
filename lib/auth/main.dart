@@ -16,7 +16,6 @@ import 'signup.dart';
 import 'terms_conditions.dart';
 import 'landing_promo_page.dart';
 import 'onboarding_page.dart';
-import '../pages/dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
