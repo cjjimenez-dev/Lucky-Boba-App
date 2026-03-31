@@ -11,7 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config/app_config.dart';
 import '../state/profile_notifier.dart';
-import '../auth/main.dart';
+import '../auth/login.dart';
 import 'order_history_page.dart';
 import 'address_book_page.dart';
 import 'notifications_page.dart';

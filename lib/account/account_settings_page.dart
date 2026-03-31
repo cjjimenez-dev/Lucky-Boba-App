@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../config/app_config.dart';
-import '../auth/main.dart';
+import '../auth/login.dart';
 import '../state/profile_notifier.dart';
 
 class AccountSettingsPage extends StatefulWidget {
