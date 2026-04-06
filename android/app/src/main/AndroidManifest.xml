@@ -11,9 +11,9 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:label="luckyboba_app"
+        android:label="Lucky Boba"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
 
         <meta-data
