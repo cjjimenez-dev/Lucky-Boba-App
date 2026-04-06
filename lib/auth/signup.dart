@@ -299,7 +299,7 @@ class _SignupPageState extends State<SignupPage>
                                     fit:    BoxFit.cover,
                                     width:  80,
                                     height: 80,
-                                    errorBuilder: (_, __, ___) =>
+                                    errorBuilder: (_, _, _) =>
                                         Container(
                                           color: Colors.white
                                               .withValues(alpha: 0.15),

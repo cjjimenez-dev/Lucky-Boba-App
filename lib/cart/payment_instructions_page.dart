@@ -142,7 +142,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: _brandColor.withOpacity(0.12),
+                      color: _brandColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -174,7 +174,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                         gradient: LinearGradient(
                           colors: [
                             _brandColor,
-                            _brandColor.withOpacity(0.80),
+                            _brandColor.withValues(alpha: 0.80),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -182,7 +182,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: _brandColor.withOpacity(0.30),
+                            color: _brandColor.withValues(alpha: 0.30),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -211,7 +211,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.20),
+                              color: Colors.white.withValues(alpha: 0.20),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -246,7 +246,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                               Container(
                                 width: 32, height: 32,
                                 decoration: BoxDecoration(
-                                  color: _brandColor.withOpacity(0.12),
+                                  color: _brandColor.withValues(alpha: 0.12),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -323,7 +323,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                               color: _surface,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: _brandColor.withOpacity(0.25),
+                                  color: _brandColor.withValues(alpha: 0.25),
                                   width: 2),
                             ),
                             child: Column(
@@ -331,7 +331,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                               children: [
                                 Icon(Icons.qr_code_2_rounded,
                                     size: 80,
-                                    color: _brandColor.withOpacity(0.40)),
+                                    color: _brandColor.withValues(alpha: 0.40)),
                                 const SizedBox(height: 8),
                                 Text(
                                   'QR Code\nPlaceholder',
@@ -350,7 +350,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.poppins(
                                 fontSize: 10,
-                                color: _textMid.withOpacity(0.70),
+                                color: _textMid.withValues(alpha: 0.70),
                                 fontStyle: FontStyle.italic),
                           ),
                         ],
@@ -391,10 +391,10 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: _orange.withOpacity(0.08),
+                        color: _orange.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                         border:
-                        Border.all(color: _orange.withOpacity(0.30)),
+                        Border.all(color: _orange.withValues(alpha: 0.30)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +431,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
                 const BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
+                      color: Colors.black.withValues(alpha: 0.07),
                       blurRadius: 16,
                       offset: const Offset(0, -4)),
                 ],
@@ -486,7 +486,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isHighlighted
-              ? _purple.withOpacity(0.20)
+              ? _purple.withValues(alpha: 0.20)
               : const Color(0xFFEAEAF0),
         ),
       ),
@@ -516,7 +516,7 @@ class _PaymentInstructionsPageState extends State<PaymentInstructionsPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _purple.withOpacity(0.08),
+                color: _purple.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child:

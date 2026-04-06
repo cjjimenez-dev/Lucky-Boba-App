@@ -230,7 +230,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
             Container(
               width: 72, height: 72,
               decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.10), shape: BoxShape.circle),
+                  color: Colors.orange.withValues(alpha: 0.10), shape: BoxShape.circle),
               child: const Icon(Icons.hourglass_top_rounded,
                   color: Colors.orange, size: 36),
             ),
@@ -414,7 +414,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
           padding: const EdgeInsets.all(28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(width: 72, height: 72,
-                decoration: BoxDecoration(color: color.withOpacity(0.10), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.10), shape: BoxShape.circle),
                 child: Icon(urgent ? Icons.warning_amber_rounded : Icons.calendar_month_rounded, color: color, size: 36)),
             const SizedBox(height: 16),
             Text('Card Expiry', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700, color: _textDark)),
@@ -434,7 +434,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
                   Text('Days remaining', style: GoogleFonts.poppins(fontSize: 13, color: _textMid)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
                     child: Text('$days day${days != 1 ? 's' : ''}',
                         style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
                   ),
@@ -446,9 +446,9 @@ class _CardPurchasePageState extends State<CardPurchasePage>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.08),
+                    color: Colors.orange.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3))),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3))),
                 child: Row(children: [
                   const Icon(Icons.info_outline_rounded, color: Colors.orange, size: 16),
                   const SizedBox(width: 8),
@@ -524,7 +524,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
                             : (widget.cardImageUrl.startsWith('http')
                             ? Image.network(widget.cardImageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            errorBuilder: (_, _, _) => Container(
                                 color: const Color(0xFFF2EEF8),
                                 child: const Icon(Icons.credit_card_rounded,
                                     color: Color(0xFF7C14D4), size: 48)))
@@ -576,11 +576,11 @@ class _CardPurchasePageState extends State<CardPurchasePage>
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   color: _daysRemaining != null && _daysRemaining! <= 7
-                      ? Colors.orange.withOpacity(0.08) : _surface,
+                      ? Colors.orange.withValues(alpha: 0.08) : _surface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                       color: _daysRemaining != null && _daysRemaining! <= 7
-                          ? Colors.orange.withOpacity(0.4) : _purple.withOpacity(0.2),
+                          ? Colors.orange.withValues(alpha: 0.4) : _purple.withValues(alpha: 0.2),
                       width: 1.2),
                 ),
                 child: _loadingExpiry
@@ -591,7 +591,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: _daysRemaining != null && _daysRemaining! <= 7
-                            ? Colors.orange.withOpacity(0.15) : _purple.withOpacity(0.10),
+                            ? Colors.orange.withValues(alpha: 0.15) : _purple.withValues(alpha: 0.10),
                         shape: BoxShape.circle),
                     child: Icon(
                         _daysRemaining != null && _daysRemaining! <= 7
@@ -614,7 +614,7 @@ class _CardPurchasePageState extends State<CardPurchasePage>
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                           color: _daysRemaining! <= 7
-                              ? Colors.orange.withOpacity(0.15) : Colors.green.withOpacity(0.12),
+                              ? Colors.orange.withValues(alpha: 0.15) : Colors.green.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20)),
                       child: Text('${_daysRemaining}d left',
                           style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700,
@@ -728,7 +728,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
   Timer?  _timer;
   int     _secondsLeft  = _cooldown;
   bool    _timerDone    = false;
-  bool    _submitting   = false;
+  final bool _submitting = false;
 
   @override
   void initState() {
@@ -818,7 +818,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
               decoration: BoxDecoration(
                 color: widget.accentColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: widget.color.withOpacity(0.2)),
+                border: Border.all(color: widget.color.withValues(alpha: 0.2)),
               ),
               child: Column(children: [
                 Container(
@@ -826,7 +826,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: widget.color.withOpacity(0.15), blurRadius: 20, offset: const Offset(0, 6))],
+                    boxShadow: [BoxShadow(color: widget.color.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 6))],
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -838,10 +838,10 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
                           ? child
                           : Center(child: CircularProgressIndicator(
                           color: widget.color, strokeWidth: 2)),
-                      errorBuilder: (_, __, ___) => _qrFallback(),
+                      errorBuilder: (_, _, _) => _qrFallback(),
                     )
                         : Image.asset(widget.qrAssetFallback, fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => _qrFallback()),
+                        errorBuilder: (_, _, _) => _qrFallback()),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -871,7 +871,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                      color: widget.color.withOpacity(0.12),
+                      color: widget.color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20)),
                   child: Text('Amount: ${widget.cardPrice}',
                       style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: widget.color)),
@@ -923,7 +923,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
                     prefixIcon: Icon(Icons.tag_rounded, color: widget.color, size: 18),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                     border:        OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: widget.color.withOpacity(0.3), width: 1.2)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: widget.color.withValues(alpha: 0.3), width: 1.2)),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: widget.color, width: 1.5)),
                   ),
                 ),
@@ -936,7 +936,7 @@ class _QrPaymentSheetState extends State<_QrPaymentSheet> {
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF8F0),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.info_outline_rounded, color: Colors.orange, size: 18),
@@ -1018,7 +1018,7 @@ class _PaymentOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFFEAEAF0), width: 1),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 3))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 3))],
         ),
         child: Row(children: [
           Container(
@@ -1029,7 +1029,7 @@ class _PaymentOptionTile extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Image.asset(logoPath, fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Icon(icon, color: color, size: 28)),
+                    errorBuilder: (_, _, _) => Icon(icon, color: color, size: 28)),
               ),
             ),
           ),

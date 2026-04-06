@@ -135,16 +135,17 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
   double get _basePrice {
     final raw = _selectedVariant['price'];
     double price = 0.0;
-    if (raw is double)      price = raw;
-    else if (raw is int)    price = raw.toDouble();
-    else if (raw != null)   price = double.tryParse(raw.toString()) ?? 0.0;
+    if (raw is double) { price = raw; }
+    else if (raw is int) { price = raw.toDouble(); }
+    else if (raw != null) { price = double.tryParse(raw.toString()) ?? 0.0; }
 
     if (price == 0.0) {
       final fallback = widget.item['price'];
       if (fallback is double) return fallback;
       if (fallback is int)    return fallback.toDouble();
-      if (fallback != null)
+      if (fallback != null) {
         return double.tryParse(fallback.toString()) ?? 0.0;
+      }
     }
     return price;
   }
@@ -320,7 +321,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
                         border: Border(bottom: BorderSide(color: Color(0xFFEAEAF0), width: 1)),
                       ),
                       child: imageUrl != null && imageUrl.isNotEmpty
-                          ? Image.network(imageUrl, fit: BoxFit.contain, errorBuilder: (_, __, ___) => _placeholder())
+                          ? Image.network(imageUrl, fit: BoxFit.contain, errorBuilder: (_, _, _) => _placeholder())
                           : _placeholder(),
                     ),
 
@@ -360,7 +361,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _isFood ? Colors.orange.withOpacity(0.12) : _purple.withOpacity(0.10),
+                              color: _isFood ? Colors.orange.withValues(alpha: 0.12) : _purple.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -405,7 +406,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                   decoration: BoxDecoration(
-                                    color: sel ? _purple.withOpacity(0.08) : Colors.white,
+                                    color: sel ? _purple.withValues(alpha: 0.08) : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(color: sel ? _purple : const Color(0xFFEAEAF0), width: sel ? 1.5 : 1),
                                   ),
@@ -463,9 +464,9 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
                               padding: const EdgeInsets.all(10),
                               margin:  const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
-                                color: Colors.orange.withOpacity(0.08),
+                                color: Colors.orange.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -513,7 +514,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.07), blurRadius: 16, offset: const Offset(0, -4))],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.07), blurRadius: 16, offset: const Offset(0, -4))],
               ),
               child: Row(
                 children: [
@@ -557,7 +558,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-            decoration: BoxDecoration(color: _purple.withOpacity(0.10), borderRadius: BorderRadius.circular(4)),
+            decoration: BoxDecoration(color: _purple.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(4)),
             child: Text('Required', style: GoogleFonts.poppins(fontSize: 10, color: _purple, fontWeight: FontWeight.w600)),
           ),
         ],
@@ -579,7 +580,7 @@ class _ItemCustomizationPageState extends State<ItemCustomizationPage> {
         margin:  const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? _purple.withOpacity(0.08) : Colors.white,
+          color: selected ? _purple.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? _purple : const Color(0xFFEAEAF0), width: selected ? 1.5 : 1),
         ),

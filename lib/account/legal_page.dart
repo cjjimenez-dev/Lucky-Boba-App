@@ -141,9 +141,9 @@ class LegalPage extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 20),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: _purple.withOpacity(0.07),
+      color: _purple.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: _purple.withOpacity(0.15)),
+      border: Border.all(color: _purple.withValues(alpha: 0.15)),
     ),
     child: Text(text, style: GoogleFonts.poppins(fontSize: 13, color: _textDark, height: 1.6)),
   );

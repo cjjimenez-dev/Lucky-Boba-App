@@ -288,7 +288,7 @@
                           boxShadow: selected
                               ? [
                             BoxShadow(
-                              color:      _purple.withOpacity(0.20),
+                              color:      _purple.withValues(alpha: 0.20),
                               blurRadius: 8,
                               offset:     const Offset(0, 3),
                             )
@@ -417,7 +417,7 @@
             border: Border.all(color: const Color(0xFFEAEAF0), width: 1),
             boxShadow: [
               BoxShadow(
-                color:      Colors.black.withOpacity(0.05),
+                color:      Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset:     const Offset(0, 4),
               )
@@ -511,12 +511,11 @@
   class _SafeNetworkImage extends StatefulWidget {
     final String url;
     final Widget placeholder;
-    final int    maxRetries;
+    static const int maxRetries = 3;
   
     const _SafeNetworkImage({
       required this.url,
       required this.placeholder,
-      this.maxRetries = 3,
     });
   
     @override
@@ -542,7 +541,7 @@
   
     void _retry() {
       if (!mounted) return;
-      if (_attempt >= widget.maxRetries) {
+      if (_attempt >= _SafeNetworkImage.maxRetries) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) setState(() => _failed = true);
         });

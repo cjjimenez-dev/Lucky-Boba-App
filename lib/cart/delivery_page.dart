@@ -94,7 +94,7 @@ class DeliveryPage extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             _purple,
-                            _purple.withOpacity(0.75),
+                            _purple.withValues(alpha: 0.75),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -121,7 +121,7 @@ class DeliveryPage extends StatelessWidget {
                                   'Order now via your\nfavorite delivery app',
                                   style: GoogleFonts.poppins(
                                     fontSize: 13,
-                                    color: Colors.white.withOpacity(0.85),
+                                    color: Colors.white.withValues(alpha: 0.85),
                                     height: 1.4,
                                   ),
                                 ),
@@ -130,10 +130,10 @@ class DeliveryPage extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.15),
+                                    color: Colors.white.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                        color: Colors.white.withOpacity(0.3)),
+                                        color: Colors.white.withValues(alpha: 0.3)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -160,14 +160,14 @@ class DeliveryPage extends StatelessWidget {
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: ClipOval(
                               child: Image.asset(
                                 'assets/images/maps_logo.png',
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
+                                errorBuilder: (_, _, _) => const Icon(
                                     Icons.local_cafe_rounded,
                                     color: Colors.white,
                                     size: 40),
@@ -232,7 +232,7 @@ class DeliveryPage extends StatelessWidget {
                         color: _surface,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: _purple.withOpacity(0.15), width: 1),
+                            color: _purple.withValues(alpha: 0.15), width: 1),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +240,7 @@ class DeliveryPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _purple.withOpacity(0.10),
+                              color: _purple.withValues(alpha: 0.10),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.info_outline_rounded,
@@ -323,7 +323,7 @@ class _PartnerCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFEAEAF0), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -346,7 +346,7 @@ class _PartnerCard extends StatelessWidget {
                   child: Image.asset(
                     imagePath,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Icon(
+                    errorBuilder: (_, _, _) => Icon(
                         Icons.delivery_dining_rounded,
                         color: brandColor,
                         size: 28),
@@ -378,7 +378,7 @@ class _PartnerCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _purple.withOpacity(0.10),
+                            color: _purple.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(

@@ -13,7 +13,6 @@ import '../config/app_config.dart';
 import '../state/profile_notifier.dart';
 import '../auth/main.dart';
 import 'order_history_page.dart';
-import 'address_book_page.dart';
 import 'notifications_page.dart';
 import 'contact_us_page.dart';
 import 'legal_page.dart';
@@ -306,8 +305,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder(
-        pageBuilder:        (_, __, ___) => const LoginPage(),
-        transitionsBuilder: (_, anim, __, child) =>
+        pageBuilder:        (_, _, _) => const LoginPage(),
+        transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 400),
       ),
@@ -382,7 +381,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     await prefs.remove(imageKey);
                     profileImageNotifier.value = null;
                     setState(() => _profileImagePath = null);
-                    if (context.mounted) Navigator.pop(context);
+                    if (mounted) Navigator.pop(context);
                   },
                 ),
               ],
@@ -711,13 +710,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         subtitle: 'Email, password, phone & more',
                         onTap:    () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const AccountSettingsPage())),
-                      ),
-                      _MenuTileData(
-                        icon:     PhosphorIconsRegular.mapPin,
-                        title:    'Address Book',
-                        subtitle: 'Manage your saved addresses',
-                        onTap:    () => Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const AddressBookPage())),
                       ),
                       _MenuTileData(
                         icon:     PhosphorIconsRegular.receipt,

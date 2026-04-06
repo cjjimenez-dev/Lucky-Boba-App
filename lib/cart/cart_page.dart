@@ -130,10 +130,10 @@ class _CartPageState extends State<CartPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 7),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.08),
+                          color: Colors.red.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                              color: Colors.red.withOpacity(0.2)),
+                              color: Colors.red.withValues(alpha: 0.2)),
                         ),
                         child: Text(
                           'Clear all',
@@ -172,7 +172,7 @@ class _CartPageState extends State<CartPage> {
                       top: Radius.circular(24)),
                   boxShadow: [
                     BoxShadow(
-                      color:      Colors.black.withOpacity(0.07),
+                      color:      Colors.black.withValues(alpha: 0.07),
                       blurRadius: 16,
                       offset:     const Offset(0, -4),
                     ),
@@ -338,7 +338,7 @@ class _CartPageState extends State<CartPage> {
         border: Border.all(color: const Color(0xFFEAEAF0), width: 1),
         boxShadow: [
           BoxShadow(
-            color:      Colors.black.withOpacity(0.04),
+            color:      Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset:     const Offset(0, 4),
           ),
@@ -356,7 +356,7 @@ class _CartPageState extends State<CartPage> {
               width:  76,
               height: 76,
               fit:    BoxFit.cover,
-              errorBuilder: (_, __, ___) => _imagePlaceholder(),
+              errorBuilder: (_, _, _) => _imagePlaceholder(),
             )
                 : _imagePlaceholder(),
           ),
@@ -389,7 +389,7 @@ class _CartPageState extends State<CartPage> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.08),
+                          color: Colors.red.withValues(alpha: 0.08),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.close_rounded,

@@ -377,9 +377,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color:        color.withOpacity(0.06),
+          color:        color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(16),
-          border:       Border.all(color: color.withOpacity(0.30)),
+          border:       Border.all(color: color.withValues(alpha: 0.30)),
         ),
         child: Row(
           children: [
@@ -387,7 +387,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
               width:  48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 24, color: color),
@@ -414,7 +414,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
               width:  32,
               height: 32,
               decoration: BoxDecoration(
-                color:  color.withOpacity(0.10),
+                color:  color.withValues(alpha: 0.10),
                 shape:  BoxShape.circle,
               ),
               child: Icon(Icons.chevron_right_rounded,
@@ -528,7 +528,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
           ),
           AnimatedBuilder(
             animation: _pulseAnim,
-            builder: (_, __) => Row(
+            builder: (_, _) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Opacity(
@@ -564,7 +564,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
         color:        meta['bg'] as Color,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: (meta['color'] as Color).withOpacity(0.25),
+          color: (meta['color'] as Color).withValues(alpha: 0.25),
           width: 1.5,
         ),
       ),
@@ -574,7 +574,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
             width:  64,
             height: 64,
             decoration: BoxDecoration(
-              color: (meta['color'] as Color).withOpacity(0.12),
+              color: (meta['color'] as Color).withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(meta['icon'] as IconData,
@@ -596,9 +596,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
               padding: const EdgeInsets.symmetric(
                   horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color:        _purple.withOpacity(0.08),
+                color:        _purple.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(20),
-                border:       Border.all(color: _purple.withOpacity(0.3)),
+                border:       Border.all(color: _purple.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -657,7 +657,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
                   color: isDone
                       ? _purple
                       : isActive
-                      ? (meta['color'] as Color).withOpacity(0.12)
+                      ? (meta['color'] as Color).withValues(alpha: 0.12)
                       : const Color(0xFFEAEAF0),
                   shape: BoxShape.circle,
                   border: isActive
@@ -707,12 +707,12 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _purple.withOpacity(0.08),
-            _purple.withOpacity(0.03),
+            _purple.withValues(alpha: 0.08),
+            _purple.withValues(alpha: 0.03),
           ],
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _purple.withOpacity(0.3)),
+        border: Border.all(color: _purple.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -723,7 +723,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
                 width:  38,
                 height: 38,
                 decoration: BoxDecoration(
-                    color: _purple.withOpacity(0.12),
+                    color: _purple.withValues(alpha: 0.12),
                     shape: BoxShape.circle),
                 child: const Icon(Icons.payment_rounded,
                     size: 20, color: _purple),
@@ -764,10 +764,10 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 10),
                     decoration: BoxDecoration(
-                      color:        _gcashColor.withOpacity(0.08),
+                      color:        _gcashColor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: _gcashColor.withOpacity(0.35)),
+                          color: _gcashColor.withValues(alpha: 0.35)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -794,10 +794,10 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 10),
                     decoration: BoxDecoration(
-                      color:        _mayaColor.withOpacity(0.08),
+                      color:        _mayaColor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: _mayaColor.withOpacity(0.35)),
+                          color: _mayaColor.withValues(alpha: 0.35)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -852,9 +852,9 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
       padding: const EdgeInsets.all(16),
       margin:  const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color:        _red.withOpacity(0.04),
+        color:        _red.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _red.withOpacity(0.25)),
+        border: Border.all(color: _red.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -862,7 +862,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
             width:  40,
             height: 40,
             decoration: BoxDecoration(
-              color:  _red.withOpacity(0.10),
+              color:  _red.withValues(alpha: 0.10),
               shape:  BoxShape.circle,
             ),
             child: const Icon(Icons.cancel_outlined,
@@ -897,7 +897,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
             onPressed: _cancelOrder,
             style: TextButton.styleFrom(
               foregroundColor:  _red,
-              backgroundColor:  _red.withOpacity(0.10),
+              backgroundColor:  _red.withValues(alpha: 0.10),
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 10),
               shape: RoundedRectangleBorder(
@@ -924,7 +924,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
       decoration: BoxDecoration(
         color:        const Color(0xFFDCFCE7),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _green.withOpacity(0.35)),
+        border: Border.all(color: _green.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
@@ -1096,7 +1096,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage>
         ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
-          side: BorderSide(color: _purple.withOpacity(0.4), width: 1.5),
+          side: BorderSide(color: _purple.withValues(alpha: 0.4), width: 1.5),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14)),
         ),

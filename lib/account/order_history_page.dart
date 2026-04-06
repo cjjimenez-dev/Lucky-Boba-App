@@ -75,13 +75,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
   Color _statusBg(String status) {
     switch (status.toLowerCase()) {
-      case 'completed':  return const Color(0xFF22C55E).withOpacity(0.10);
-      case 'pending':    return _purple.withOpacity(0.10);
-      case 'cancelled':  return Colors.red.withOpacity(0.10);
-      case 'processing': return _purple.withOpacity(0.10);
-      case 'preparing':  return _purple.withOpacity(0.10);
-      case 'ready':      return const Color(0xFF22C55E).withOpacity(0.10);
-      case 'fulfilled':  return _purple.withOpacity(0.10);
+      case 'completed':  return const Color(0xFF22C55E).withValues(alpha: 0.10);
+      case 'pending':    return _purple.withValues(alpha: 0.10);
+      case 'cancelled':  return Colors.red.withValues(alpha: 0.10);
+      case 'processing': return _purple.withValues(alpha: 0.10);
+      case 'preparing':  return _purple.withValues(alpha: 0.10);
+      case 'ready':      return const Color(0xFF22C55E).withValues(alpha: 0.10);
+      case 'fulfilled':  return _purple.withValues(alpha: 0.10);
       default:           return _surface;
     }
   }
@@ -219,12 +219,12 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: trackable
-                ? _purple.withOpacity(0.25)
+                ? _purple.withValues(alpha: 0.25)
                 : const Color(0xFFEAEAF0),
           ),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4)),
           ],

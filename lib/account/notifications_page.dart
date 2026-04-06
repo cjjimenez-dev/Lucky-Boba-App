@@ -110,9 +110,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: _purple.withOpacity(0.07),
+                        color: _purple.withValues(alpha: 0.07),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: _purple.withOpacity(0.15)),
+                        border: Border.all(color: _purple.withValues(alpha: 0.15)),
                       ),
                       child: Row(
                         children: [
@@ -146,7 +146,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFEAEAF0)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: items.asMap().entries.map((e) {
@@ -178,7 +178,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Switch(
                       value:           item.value,
                       onChanged:       item.onChanged,
-                      activeColor:     _purple,
+                      activeThumbColor: _purple,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ],

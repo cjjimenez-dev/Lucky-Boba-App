@@ -606,7 +606,7 @@ class _NearbyStoreBanner extends StatelessWidget {
                 child: Image.asset(
                   store['image'] as String,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -770,7 +770,7 @@ class _BranchPickerSheet extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _purple.withOpacity(0.10),
+                      color: _purple.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(PhosphorIconsRegular.storefront,
@@ -868,13 +868,13 @@ class _BranchTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isNearest
-                ? _purple.withOpacity(0.35)
+                ? _purple.withValues(alpha: 0.35)
                 : const Color(0xFFEAEAF0),
             width: isNearest ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -888,7 +888,7 @@ class _BranchTile extends StatelessWidget {
                 store['image'],
                 width: 52, height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 52, height: 52,
                   color: const Color(0xFFF2EEF8),
                   child: const Icon(PhosphorIconsRegular.storefront,
@@ -917,7 +917,7 @@ class _BranchTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _purple.withOpacity(0.10),
+                            color: _purple.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text('NEAREST',
@@ -1084,7 +1084,7 @@ class _HeroBanner extends StatelessWidget {
             Positioned.fill(
               child: Image.asset(imagePath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox()),
+                  errorBuilder: (_, _, _) => const SizedBox()),
             ),
             Positioned.fill(
               child: DecoratedBox(
@@ -1195,7 +1195,7 @@ class _CategoryCard extends StatelessWidget {
                   imagePath,
                   fit: BoxFit.cover,
                   width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: fallback.withValues(alpha: 0.15),
                     child: Center(
                       child: Icon(Icons.local_drink_rounded,

@@ -416,7 +416,7 @@ class _LoginPageState extends State<LoginPage>
                                       boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.20), blurRadius: 24, offset: const Offset(0, 8))],
                                     ),
                                     child: Image.asset('assets/images/maps_logo.png', fit: BoxFit.cover, width: 90, height: 90,
-                                        errorBuilder: (_, __, ___) => Container(
+                                        errorBuilder: (_, _, _) => Container(
                                             color: Colors.white.withValues(alpha: 0.15),
                                             child: const Icon(Icons.local_cafe_rounded, color: Colors.white, size: 36))),
                                   ),

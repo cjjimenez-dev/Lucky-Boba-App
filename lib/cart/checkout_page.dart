@@ -610,7 +610,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         shrinkWrap:       true,
         physics:          const NeverScrollableScrollPhysics(),
         itemCount:        myCart.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFEAEAF0)),
+        separatorBuilder: (_, _) => const Divider(height: 1, color: Color(0xFFEAEAF0)),
         itemBuilder:      (_, index) => _itemTile(myCart[index]),
       ),
     );

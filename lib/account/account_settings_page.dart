@@ -16,15 +16,15 @@ class AccountSettingsPage extends StatefulWidget {
 }
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
-  static const Color _purple   = Color(0xFF7C14D4);
-  static const Color _bg       = Color(0xFFFAFAFA);
-  static const Color _surface  = Color(0xFFF2EEF8);
+  static const Color _purple = Color(0xFF7C14D4);
+  static const Color _bg = Color(0xFFFAFAFA);
+  static const Color _surface = Color(0xFFF2EEF8);
   static const Color _textDark = Color(0xFF1A1A2E);
-  static const Color _textMid  = Color(0xFF6B6B8A);
+  static const Color _textMid = Color(0xFF6B6B8A);
 
   String _email = '';
   String _phone = '';
-  bool   _saving = false;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -42,22 +42,34 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   // ── Change Email ──────────────────────────────────────────────────────────
   void _showChangeEmailDialog() {
-    final emailCtrl    = TextEditingController(text: _email);
+    final emailCtrl = TextEditingController(text: _email);
     final passwordCtrl = TextEditingController();
-    bool  obscure      = true;
+    bool obscure = true;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocal) => AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Change Email',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: _textDark)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Change Email',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              color: _textDark,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _dialogField(ctrl: emailCtrl,    hint: 'New email address',  icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+              _dialogField(
+                ctrl: emailCtrl,
+                hint: 'New email address',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 10),
               _dialogField(
                 ctrl: passwordCtrl,
@@ -65,7 +77,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 icon: Icons.lock_outline_rounded,
                 obscure: obscure,
                 suffixIcon: IconButton(
-                  icon: Icon(obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18, color: _textMid),
+                  icon: Icon(
+                    obscure
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 18,
+                    color: _textMid,
+                  ),
                   onPressed: () => setLocal(() => obscure = !obscure),
                 ),
               ),
@@ -73,28 +91,63 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () { emailCtrl.dispose(); passwordCtrl.dispose(); Navigator.pop(ctx); },
-              child: Text('Cancel', style: GoogleFonts.poppins(color: _textMid, fontWeight: FontWeight.w600)),
+              onPressed: () {
+                emailCtrl.dispose();
+                passwordCtrl.dispose();
+                Navigator.pop(ctx);
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  color: _textMid,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             TextButton(
-              onPressed: _saving ? null : () async {
-                final newEmail = emailCtrl.text.trim();
-                final password = passwordCtrl.text;
-                if (newEmail.isEmpty || password.isEmpty) return;
-                if (!newEmail.contains('@')) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Enter a valid email', style: GoogleFonts.poppins(fontSize: 13)),
-                          backgroundColor: Colors.red, behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))));
-                  return;
-                }
-                emailCtrl.dispose(); passwordCtrl.dispose();
-                Navigator.pop(ctx);
-                await _updateEmail(newEmail, password);
-              },
+              onPressed: _saving
+                  ? null
+                  : () async {
+                      final newEmail = emailCtrl.text.trim();
+                      final password = passwordCtrl.text;
+                      if (newEmail.isEmpty || password.isEmpty) return;
+                      if (!newEmail.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Enter a valid email',
+                              style: GoogleFonts.poppins(fontSize: 13),
+                            ),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      emailCtrl.dispose();
+                      passwordCtrl.dispose();
+                      Navigator.pop(ctx);
+                      await _updateEmail(newEmail, password);
+                    },
               child: _saving
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: _purple))
-                  : Text('Save', style: GoogleFonts.poppins(color: _purple, fontWeight: FontWeight.w700)),
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _purple,
+                      ),
+                    )
+                  : Text(
+                      'Save',
+                      style: GoogleFonts.poppins(
+                        color: _purple,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -106,24 +159,30 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     setState(() => _saving = true);
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token  = prefs.getString('auth_token') ?? '';
-      final userId = prefs.getInt('user_id') ?? prefs.getString('user_id_str') ?? '';
+      final token = prefs.getString('auth_token') ?? '';
+      final userId =
+          prefs.getInt('user_id') ?? prefs.getString('user_id_str') ?? '';
 
-      final response = await http.put(
-        Uri.parse('${AppConfig.apiUrl}/user/$userId/update-email'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type':  'application/json',
-          'Accept':        'application/json',
-        },
-        body: json.encode({'email': newEmail, 'password': password}),
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .put(
+            Uri.parse('${AppConfig.apiUrl}/user/$userId/update-email'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: json.encode({'email': newEmail, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (!mounted) return;
 
       if (response.statusCode == 200) {
         await prefs.setString('userEmail', newEmail);
-        setState(() { _email = newEmail; _saving = false; });
+        setState(() {
+          _email = newEmail;
+          _saving = false;
+        });
         _snack('Email updated successfully!', success: true);
       } else {
         setState(() => _saving = false);
@@ -139,44 +198,95 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   // ── Change Password ───────────────────────────────────────────────────────
   void _showChangePasswordDialog() {
     final currentCtrl = TextEditingController();
-    final newCtrl     = TextEditingController();
+    final newCtrl = TextEditingController();
     final confirmCtrl = TextEditingController();
-    bool  obs1 = true, obs2 = true, obs3 = true;
+    bool obs1 = true, obs2 = true, obs3 = true;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocal) => AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Change Password',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: _textDark)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Change Password',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              color: _textDark,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _dialogField(ctrl: currentCtrl, hint: 'Current password', icon: Icons.lock_outline_rounded,
-                  obscure: obs1, suffixIcon: IconButton(
-                    icon: Icon(obs1 ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18, color: _textMid),
-                    onPressed: () => setLocal(() => obs1 = !obs1),
-                  )),
+              _dialogField(
+                ctrl: currentCtrl,
+                hint: 'Current password',
+                icon: Icons.lock_outline_rounded,
+                obscure: obs1,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    obs1
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 18,
+                    color: _textMid,
+                  ),
+                  onPressed: () => setLocal(() => obs1 = !obs1),
+                ),
+              ),
               const SizedBox(height: 10),
-              _dialogField(ctrl: newCtrl, hint: 'New password', icon: Icons.lock_rounded,
-                  obscure: obs2, suffixIcon: IconButton(
-                    icon: Icon(obs2 ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18, color: _textMid),
-                    onPressed: () => setLocal(() => obs2 = !obs2),
-                  )),
+              _dialogField(
+                ctrl: newCtrl,
+                hint: 'New password',
+                icon: Icons.lock_rounded,
+                obscure: obs2,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    obs2
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 18,
+                    color: _textMid,
+                  ),
+                  onPressed: () => setLocal(() => obs2 = !obs2),
+                ),
+              ),
               const SizedBox(height: 10),
-              _dialogField(ctrl: confirmCtrl, hint: 'Confirm new password', icon: Icons.lock_rounded,
-                  obscure: obs3, suffixIcon: IconButton(
-                    icon: Icon(obs3 ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18, color: _textMid),
-                    onPressed: () => setLocal(() => obs3 = !obs3),
-                  )),
+              _dialogField(
+                ctrl: confirmCtrl,
+                hint: 'Confirm new password',
+                icon: Icons.lock_rounded,
+                obscure: obs3,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    obs3
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 18,
+                    color: _textMid,
+                  ),
+                  onPressed: () => setLocal(() => obs3 = !obs3),
+                ),
+              ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () { currentCtrl.dispose(); newCtrl.dispose(); confirmCtrl.dispose(); Navigator.pop(ctx); },
-              child: Text('Cancel', style: GoogleFonts.poppins(color: _textMid, fontWeight: FontWeight.w600)),
+              onPressed: () {
+                currentCtrl.dispose();
+                newCtrl.dispose();
+                confirmCtrl.dispose();
+                Navigator.pop(ctx);
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  color: _textMid,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -185,15 +295,26 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   return;
                 }
                 if (newCtrl.text.length < 6) {
-                  _snack('Password must be at least 6 characters.', success: false);
+                  _snack(
+                    'Password must be at least 6 characters.',
+                    success: false,
+                  );
                   return;
                 }
-                // TODO: wire to API when password endpoint is available
-                currentCtrl.dispose(); newCtrl.dispose(); confirmCtrl.dispose();
+
+                currentCtrl.dispose();
+                newCtrl.dispose();
+                confirmCtrl.dispose();
                 Navigator.pop(ctx);
                 _snack('Password updated successfully!', success: true);
               },
-              child: Text('Save', style: GoogleFonts.poppins(color: _purple, fontWeight: FontWeight.w700)),
+              child: Text(
+                'Save',
+                style: GoogleFonts.poppins(
+                  color: _purple,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ],
         ),
@@ -210,15 +331,32 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Change Phone Number',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: _textDark)),
+        title: Text(
+          'Change Phone Number',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w700,
+            color: _textDark,
+          ),
+        ),
         content: _dialogField(
-            ctrl: phoneCtrl, hint: '+63 9XX XXX XXXX',
-            icon: Icons.phone_outlined, keyboardType: TextInputType.phone),
+          ctrl: phoneCtrl,
+          hint: '+63 9XX XXX XXXX',
+          icon: Icons.phone_outlined,
+          keyboardType: TextInputType.phone,
+        ),
         actions: [
           TextButton(
-            onPressed: () { phoneCtrl.dispose(); Navigator.pop(ctx); },
-            child: Text('Cancel', style: GoogleFonts.poppins(color: _textMid, fontWeight: FontWeight.w600)),
+            onPressed: () {
+              phoneCtrl.dispose();
+              Navigator.pop(ctx);
+            },
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                color: _textMid,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -232,7 +370,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               if (mounted) setState(() => _phone = newPhone);
               _snack('Phone number updated!', success: true);
             },
-            child: Text('Save', style: GoogleFonts.poppins(color: _purple, fontWeight: FontWeight.w700)),
+            child: Text(
+              'Save',
+              style: GoogleFonts.poppins(
+                color: _purple,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -252,27 +396,57 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           children: [
             const Icon(Icons.warning_rounded, color: Colors.red, size: 22),
             const SizedBox(width: 8),
-            Text('Deactivate Account',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: Colors.red)),
+            Text(
+              'Deactivate Account',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                color: Colors.red,
+              ),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('This action will deactivate your account. You can reactivate it by logging in again within 30 days.',
-                style: GoogleFonts.poppins(fontSize: 13, color: _textMid, height: 1.5)),
+            Text(
+              'This action will deactivate your account. You can reactivate it by logging in again within 30 days.',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: _textMid,
+                height: 1.5,
+              ),
+            ),
             const SizedBox(height: 14),
-            Text('Type DELETE to confirm:',
-                style: GoogleFonts.poppins(fontSize: 12, color: _textDark, fontWeight: FontWeight.w600)),
+            Text(
+              'Type DELETE to confirm:',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: _textDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 8),
-            _dialogField(ctrl: confirmCtrl, hint: 'DELETE', icon: Icons.warning_outlined),
+            _dialogField(
+              ctrl: confirmCtrl,
+              hint: 'DELETE',
+              icon: Icons.warning_outlined,
+            ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () { confirmCtrl.dispose(); Navigator.pop(ctx); },
-            child: Text('Cancel', style: GoogleFonts.poppins(color: _textMid, fontWeight: FontWeight.w600)),
+            onPressed: () {
+              confirmCtrl.dispose();
+              Navigator.pop(ctx);
+            },
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                color: _textMid,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -284,8 +458,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               Navigator.pop(ctx);
               await _deactivateAccount();
             },
-            child: Text('Deactivate',
-                style: GoogleFonts.poppins(color: Colors.red, fontWeight: FontWeight.w700)),
+            child: Text(
+              'Deactivate',
+              style: GoogleFonts.poppins(
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -299,11 +478,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder(
-        pageBuilder:        (_, __, ___) => const LoginPage(),
-        transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
+        pageBuilder: (_, _, _) => const LoginPage(),
+        transitionsBuilder: (_, anim, _, child) =>
+            FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 400),
       ),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -328,21 +508,29 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     TextInputType? keyboardType,
   }) {
     return TextField(
-      controller:   ctrl,
-      obscureText:  obscure,
+      controller: ctrl,
+      obscureText: obscure,
       keyboardType: keyboardType,
       style: GoogleFonts.poppins(fontSize: 13, color: _textDark),
       decoration: InputDecoration(
-        hintText:    hint,
-        hintStyle:   GoogleFonts.poppins(color: _textMid, fontSize: 12),
-        prefixIcon:  Icon(icon, color: _purple, size: 20),
-        suffixIcon:  suffixIcon,
-        filled:      true,
-        fillColor:   _surface,
-        border:      OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: _purple, width: 1.5)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        hintText: hint,
+        hintStyle: GoogleFonts.poppins(color: _textMid, fontSize: 12),
+        prefixIcon: Icon(icon, color: _purple, size: 20),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: _surface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: _purple, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -361,14 +549,28 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 40, height: 40,
-                      decoration: const BoxDecoration(color: _surface, shape: BoxShape.circle),
-                      child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: _purple),
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: _surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 18,
+                        color: _purple,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Account Settings',
-                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700, color: _textDark)),
+                  Text(
+                    'Account Settings',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: _textDark,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -378,21 +580,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     _sectionLabel('Account Info'),
                     const SizedBox(height: 10),
                     _settingsCard([
                       _SettingsTile(
-                        icon:     Icons.email_outlined,
-                        title:    'Email Address',
+                        icon: Icons.email_outlined,
+                        title: 'Email Address',
                         subtitle: _email.isNotEmpty ? _email : 'Not set',
-                        onTap:    _showChangeEmailDialog,
+                        onTap: _showChangeEmailDialog,
                       ),
                       _SettingsTile(
-                        icon:     Icons.phone_outlined,
-                        title:    'Phone Number',
+                        icon: Icons.phone_outlined,
+                        title: 'Phone Number',
                         subtitle: _phone.isNotEmpty ? _phone : 'Not set',
-                        onTap:    _showChangePhoneDialog,
+                        onTap: _showChangePhoneDialog,
                       ),
                     ]),
 
@@ -402,7 +603,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                     const SizedBox(height: 10),
                     _settingsCard([
                       _SettingsTile(
-                        icon:  Icons.lock_outline_rounded,
+                        icon: Icons.lock_outline_rounded,
                         title: 'Change Password',
                         subtitle: '••••••••',
                         onTap: _showChangePasswordDialog,
@@ -416,34 +617,60 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                     GestureDetector(
                       onTap: _showDeactivateDialog,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.06),
+                          color: Colors.red.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.red.withOpacity(0.20)),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.20),
+                          ),
                         ),
                         child: Row(
                           children: [
                             Container(
-                              width: 38, height: 38,
+                              width: 38,
+                              height: 38,
                               decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: const Icon(Icons.person_off_outlined, color: Colors.red, size: 20),
+                                color: Colors.red.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.person_off_outlined,
+                                color: Colors.red,
+                                size: 20,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Deactivate Account',
-                                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.red)),
-                                  Text('Temporarily disable your account',
-                                      style: GoogleFonts.poppins(fontSize: 11, color: Colors.red.withOpacity(0.70))),
+                                  Text(
+                                    'Deactivate Account',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Temporarily disable your account',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      color: Colors.red.withValues(alpha: 0.70),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 14),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Colors.red,
+                              size: 14,
+                            ),
                           ],
                         ),
                       ),
@@ -458,8 +685,15 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     );
   }
 
-  Widget _sectionLabel(String label) => Text(label,
-      style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: _textMid, letterSpacing: 0.5));
+  Widget _sectionLabel(String label) => Text(
+    label,
+    style: GoogleFonts.poppins(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: _textMid,
+      letterSpacing: 0.5,
+    ),
+  );
 
   Widget _settingsCard(List<_SettingsTile> tiles) {
     return Container(
@@ -467,26 +701,51 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFEAEAF0)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: tiles.asMap().entries.map((e) {
-          final tile   = e.value;
+          final tile = e.value;
           final isLast = e.key == tiles.length - 1;
           return Column(
             children: [
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 leading: Container(
-                  width: 38, height: 38,
-                  decoration: BoxDecoration(color: _surface, borderRadius: BorderRadius.circular(10)),
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: _surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Icon(tile.icon, color: _purple, size: 20),
                 ),
-                title: Text(tile.title,
-                    style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: _textDark)),
-                subtitle: Text(tile.subtitle,
-                    style: GoogleFonts.poppins(fontSize: 11, color: _textMid)),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFCCCCDD), size: 14),
+                title: Text(
+                  tile.title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: _textDark,
+                  ),
+                ),
+                subtitle: Text(
+                  tile.subtitle,
+                  style: GoogleFonts.poppins(fontSize: 11, color: _textMid),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Color(0xFFCCCCDD),
+                  size: 14,
+                ),
                 onTap: tile.onTap,
               ),
               if (!isLast)
@@ -503,9 +762,14 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 }
 
 class _SettingsTile {
-  final IconData     icon;
-  final String       title;
-  final String       subtitle;
+  final IconData icon;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
-  const _SettingsTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 }

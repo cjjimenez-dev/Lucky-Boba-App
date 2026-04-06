@@ -122,8 +122,8 @@ class _OnboardingPageState extends State<OnboardingPage>
   @override
   void dispose() {
     _pageController.dispose();
-    for (final c in _fadeCtrl) c.dispose();
-    for (final c in _riseCtrl) c.dispose();
+    for (final c in _fadeCtrl) { c.dispose(); }
+    for (final c in _riseCtrl) { c.dispose(); }
     _pulseCtrl.dispose();
     super.dispose();
   }
@@ -142,8 +142,8 @@ class _OnboardingPageState extends State<OnboardingPage>
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder:        (_, __, ___) => const LoginPage(),
-        transitionsBuilder: (_, anim, __, child) =>
+        pageBuilder:        (_, _, _) => const LoginPage(),
+        transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 450),
       ),
@@ -192,10 +192,10 @@ class _OnboardingPageState extends State<OnboardingPage>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
-                        color:        Colors.white.withOpacity(0.15),
+                        color:        Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                            color: Colors.white.withOpacity(0.25)),
+                            color: Colors.white.withValues(alpha: 0.25)),
                       ),
                       child: Text(
                         '${_currentPage + 1} / ${_slides.length}',
@@ -217,10 +217,10 @@ class _OnboardingPageState extends State<OnboardingPage>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 7),
                           decoration: BoxDecoration(
-                            color:        Colors.white.withOpacity(0.15),
+                            color:        Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color: Colors.white.withOpacity(0.3)),
+                                color: Colors.white.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             'Skip',
@@ -266,16 +266,16 @@ class _OnboardingPageState extends State<OnboardingPage>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: Colors.white
-                                        .withOpacity(0.13),
+                                        .withValues(alpha: 0.13),
                                     border: Border.all(
                                       color: Colors.white
-                                          .withOpacity(0.28),
+                                          .withValues(alpha: 0.28),
                                       width: 2.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black
-                                            .withOpacity(0.20),
+                                            .withValues(alpha: 0.20),
                                         blurRadius: 50,
                                         offset:
                                         const Offset(0, 18),
@@ -291,7 +291,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                                       'assets/images/logo.png',
                                       fit: BoxFit.contain,
                                       errorBuilder:
-                                          (_, __, ___) =>
+                                          (_, _, _) =>
                                       const Icon(
                                         Icons
                                             .local_cafe_rounded,
@@ -316,12 +316,12 @@ class _OnboardingPageState extends State<OnboardingPage>
                                     horizontal: 16, vertical: 7),
                                 decoration: BoxDecoration(
                                   color: s.accentColor
-                                      .withOpacity(0.22),
+                                      .withValues(alpha: 0.22),
                                   borderRadius:
                                   BorderRadius.circular(20),
                                   border: Border.all(
                                     color: s.accentColor
-                                        .withOpacity(0.55),
+                                        .withValues(alpha: 0.55),
                                     width: 1.5,
                                   ),
                                 ),
@@ -368,7 +368,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color:    Colors.white
-                                      .withOpacity(0.82),
+                                      .withValues(alpha: 0.82),
                                   height:   1.65,
                                 ),
                               ),
@@ -401,7 +401,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                           decoration: BoxDecoration(
                             color: active
                                 ? Colors.white
-                                : Colors.white.withOpacity(0.35),
+                                : Colors.white.withValues(alpha: 0.35),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         );
@@ -422,7 +422,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.18),
+                              color: Colors.black.withValues(alpha: 0.18),
                               blurRadius: 24,
                               offset:     const Offset(0, 8),
                             ),

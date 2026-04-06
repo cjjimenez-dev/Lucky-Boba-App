@@ -140,10 +140,12 @@ class _CardsPageState extends State<CardsPage> {
           raw = data['cards'];
         }
 
-        if (mounted) setState(() {
-          _cards         = raw.map((e) => CardModel.fromJson(e)).toList();
-          _errorFetching = false;
-        });
+        if (mounted) {
+          setState(() {
+            _cards         = raw.map((e) => CardModel.fromJson(e)).toList();
+            _errorFetching = false;
+          });
+        }
       } else {
         debugPrint('Cards error response: ${response.body}');
         if (mounted) setState(() => _errorFetching = true);
@@ -465,7 +467,7 @@ class _FlipCardItemState extends State<FlipCardItem>
                     opacity: widget.isAvailable ? 1.0 : 0.45,
                     child: AnimatedBuilder(
                       animation: _animation,
-                      builder: (_, __) {
+                      builder: (_, _) {
                         final angle  = _animation.value * math.pi;
                         final isBack = angle > math.pi / 2;
                         return Transform(
@@ -553,7 +555,7 @@ class _CardFace extends StatelessWidget {
       loadingBuilder: (_, child, progress) => progress == null ? child
           : Container(color: const Color(0xFFF2EEF8),
           child: const Center(child: CircularProgressIndicator(color: Color(0xFF7C14D4), strokeWidth: 2))),
-      errorBuilder: (_, __, ___) => _placeholder(),
+      errorBuilder: (_, _, _) => _placeholder(),
     );
   }
 

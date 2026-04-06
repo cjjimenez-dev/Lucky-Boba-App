@@ -294,7 +294,7 @@ class _PointsPageState extends State<PointsPage> {
                     shrinkWrap: true,
                     physics:    const NeverScrollableScrollPhysics(),
                     itemCount:  _history.length,
-                    separatorBuilder: (_, __) => const Divider(
+                    separatorBuilder: (_, _) => const Divider(
                         height: 1, color: Color(0xFFEAEAF0)),
                     itemBuilder: (_, i) {
                       final tx     = _history[i];

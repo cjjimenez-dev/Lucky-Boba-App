@@ -78,7 +78,7 @@ class OrderDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _statusColor(status).withOpacity(0.1),
+                        color: _statusColor(status).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -185,7 +185,7 @@ class OrderDetailPage extends StatelessWidget {
                                   // Expanded prevents overflow on long names
                                   Expanded(
                                     child: Text(
-                                      '${qty}× $name',
+                                      '$qty× $name',
                                       style: GoogleFonts.poppins(
                                           fontSize: 13, color: _textDark),
                                       softWrap: true,

@@ -57,8 +57,8 @@ class _LandingPromoPageState extends State<LandingPromoPage>
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder:        (_, __, ___) => const DashboardPage(),
-        transitionsBuilder: (_, anim, __, child) =>
+        pageBuilder:        (_, _, _) => const DashboardPage(),
+        transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
         transitionDuration: const Duration(milliseconds: 400),
       ),
@@ -95,7 +95,7 @@ class _LandingPromoPageState extends State<LandingPromoPage>
               child: Image.asset(
                 'assets/images/prompt_image.png',
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   color: const Color(0xFF7C14D4),
                   child: const Center(
                     child: Icon(
@@ -122,7 +122,7 @@ class _LandingPromoPageState extends State<LandingPromoPage>
                   end:    Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.6),
+                    Colors.black.withValues(alpha: 0.6),
                   ],
                 ),
               ),
@@ -166,9 +166,9 @@ class _LandingPromoPageState extends State<LandingPromoPage>
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
                 child: AnimatedBuilder(
                   animation: _animationController,
-                  builder: (_, __) => LinearProgressIndicator(
+                  builder: (_, _) => LinearProgressIndicator(
                     value:            _animationController.value,
-                    backgroundColor:  Colors.white.withOpacity(0.3),
+                    backgroundColor:  Colors.white.withValues(alpha: 0.3),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                         Colors.white),
                     borderRadius: BorderRadius.circular(4),
