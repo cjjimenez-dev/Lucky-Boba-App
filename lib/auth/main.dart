@@ -1,4 +1,5 @@
 // FILE: lib/auth/main.dart
+import 'dart:ui'; // For BackdropFilter
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../config/app_config.dart';
+import '../utils/app_theme.dart';
 
 import 'signup.dart';
 import 'terms_conditions.dart';
@@ -35,7 +37,6 @@ void main() async {
   ));
 }
 
-/// Returns true if a valid session exists in SharedPreferences.
 bool _isSessionValid(SharedPreferences prefs) {
   final int?    userId    = prefs.getInt('user_id');
   final String? userIdStr = prefs.getString('user_id_str');
@@ -43,7 +44,6 @@ bool _isSessionValid(SharedPreferences prefs) {
   return (userId != null || userIdStr != null) && token != null;
 }
 
-/// Returns the user key string used for per-user prefs keys.
 String _sessionUserKey(SharedPreferences prefs) {
   final int?    userId    = prefs.getInt('user_id');
   final String? userIdStr = prefs.getString('user_id_str');
@@ -81,16 +81,13 @@ class LuckyBobaApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         textTheme:    GoogleFonts.poppinsTextTheme(),
-        colorScheme:  ColorScheme.fromSeed(seedColor: const Color(0xFF7C14D4)),
+        colorScheme:  ColorScheme.fromSeed(seedColor: AppTheme.primary),
       ),
       home: home,
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LOGIN PAGE
-// ─────────────────────────────────────────────────────────────────────────────
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -100,15 +97,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-
-  static const Color _purple      = Color(0xFF7C14D4);
-  static const Color _purpleLight = Color(0xFF9B30FF);
-  static const Color _orange      = Color(0xFFFF8C00);
-  static const Color _bg          = Color(0xFFFAFAFA);
-  static const Color _surface     = Color(0xFFF2EEF8);
-  static const Color _border      = Color(0xFFEAEAF0);
-  static const Color _textDark    = Color(0xFF1A1A2E);
-  static const Color _textMid     = Color(0xFF6B6B8A);
 
   final _emailCtrl    = TextEditingController();
   final _passwordCtrl = TextEditingController();
@@ -131,7 +119,7 @@ class _LoginPageState extends State<LoginPage>
       statusBarIconBrightness: Brightness.light,
     ));
     _entryCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 700));
+        vsync: this, duration: const Duration(milliseconds: 1000));
     _fadeAnim  = CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
         .animate(CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOut));
@@ -146,7 +134,6 @@ class _LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
-  // ── Email / password login ────────────────────────────────────────────────
   Future<void> _handleLogin() async {
     final email    = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
@@ -157,7 +144,7 @@ class _LoginPageState extends State<LoginPage>
     setState(() => _loading = true);
     try {
       final response = await http.post(
-        Uri.parse('${AppConfig.apiUrl}/login'),  // ← was /register
+        Uri.parse('${AppConfig.apiUrl}/login'),
         headers: {
           'Content-Type': 'application/json',
           'Accept':       'application/json',
@@ -165,7 +152,6 @@ class _LoginPageState extends State<LoginPage>
         body: jsonEncode({
           'email':    email,
           'password': password,
-          // ← REMOVED 'name': name (doesn't exist + login doesn't need it)
         }),
       ).timeout(const Duration(seconds: 10));
 
@@ -173,18 +159,16 @@ class _LoginPageState extends State<LoginPage>
       setState(() => _loading = false);
 
       if (response.statusCode == 200) {
-        debugPrint('👀 RAW LOGIN RESPONSE: ${response.body}');
         await _saveUserAndNavigate(jsonDecode(response.body), email);
       } else {
         _snack('Invalid email or password', Colors.redAccent);
       }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
-      _snack('Cannot reach server — check your Wi-Fi', Colors.redAccent);
+      _snack('Cannot reach server — check your connection', Colors.redAccent);
     }
   }
 
-  // ── Google Sign-In ────────────────────────────────────────────────────────
   Future<void> _handleGoogleSignIn() async {
     setState(() => _googleLoading = true);
     try {
@@ -202,18 +186,16 @@ class _LoginPageState extends State<LoginPage>
       if (!mounted) return;
       setState(() => _googleLoading = false);
       if (response.statusCode == 200) {
-        debugPrint('👀 RAW GOOGLE LOGIN RESPONSE: ${response.body}');
         await _saveUserAndNavigate(jsonDecode(response.body), googleUser.email);
       } else {
-        _snack('Google Sign-In failed — please try again', Colors.redAccent);
+        _snack('Google Sign-In failed', Colors.redAccent);
       }
     } catch (e) {
       if (mounted) setState(() => _googleLoading = false);
-      _snack('Google Sign-In failed — check your connection', Colors.redAccent);
+      _snack('Google Sign-In failed', Colors.redAccent);
     }
   }
 
-  // ── Facebook Sign-In ──────────────────────────────────────────────────────
   Future<void> _handleFacebookSignIn() async {
     setState(() => _facebookLoading = true);
     try {
@@ -253,7 +235,6 @@ class _LoginPageState extends State<LoginPage>
         if (!mounted) return;
         setState(() => _facebookLoading = false);
         if (response.statusCode == 200) {
-          debugPrint('👀 RAW FACEBOOK LOGIN RESPONSE: ${response.body}');
           await _saveUserAndNavigate(jsonDecode(response.body), fbEmail);
           return;
         }
@@ -261,35 +242,24 @@ class _LoginPageState extends State<LoginPage>
 
       if (!mounted) return;
       setState(() => _facebookLoading = false);
-      if (firebaseUser == null) { _snack('Facebook Sign-In failed', Colors.redAccent); return; }
+      if (firebaseUser == null) {
+        _snack('Facebook Sign-In failed', Colors.redAccent);
+        return;
+      }
       await _saveUserAndNavigate({
         'user': {
           'id': firebaseUser.uid, 'name': fbName, 'email': fbEmail,
           'role': 'customer', 'has_active_card': false,
-          'card_id': null, 'card_expires_at': null,
         }
       }, fbEmail);
-    } on FirebaseAuthException catch (e) {
-      if (mounted) setState(() => _facebookLoading = false);
-      final msg = switch (e.code) {
-        'invalid-credential'                       => 'Facebook login failed — please try again.',
-        'account-exists-with-different-credential' => 'An account already exists with this email.',
-        'user-disabled'                            => 'This account has been disabled.',
-        _                                          => 'Sign-In failed — check your connection.',
-      };
-      _snack(msg, Colors.redAccent);
     } catch (_) {
       if (mounted) setState(() => _facebookLoading = false);
-      _snack('Facebook Sign-In failed — check your connection', Colors.redAccent);
+      _snack('Facebook Sign-In failed', Colors.redAccent);
     }
   }
 
-  // ── Save session + navigate ───────────────────────────────────────────────
   Future<void> _saveUserAndNavigate(
       Map<String, dynamic> data, String fallbackEmail) async {
-
-    debugPrint('👀 RAW SERVER DATA: $data');
-
     final userObj  = data['user'] ?? data;
     final dynamic rawId    = userObj['id'];
     final String  userKey  = rawId?.toString() ?? fallbackEmail;
@@ -301,16 +271,13 @@ class _LoginPageState extends State<LoginPage>
     final int? cardId = userObj['card_id'] is int
         ? userObj['card_id']
         : int.tryParse(userObj['card_id']?.toString() ?? '');
-    final String? cardExpiresAt = userObj['card_expires_at']?.toString();
 
-    // 🚨 FIX: Check the root 'data' object for the token first!
     final String sessionToken = data['token']?.toString() ??
         userObj['token']?.toString() ??
         userObj['api_token']?.toString() ??
         'local_${DateTime.now().millisecondsSinceEpoch}';
 
     final prefs = await SharedPreferences.getInstance();
-
     if (rawId is int) {
       await prefs.setInt('user_id', rawId);
     } else {
@@ -318,295 +285,183 @@ class _LoginPageState extends State<LoginPage>
     }
 
     await prefs.setString('session_token', sessionToken);
-    await prefs.setString('token', sessionToken); // Saving as both just in case!
     await prefs.setString('userName',  userName);
     await prefs.setString('userRole',  userRole);
     await prefs.setString('userEmail', userEmail);
     await prefs.setBool('has_active_card', hasActiveCard);
-
-    if (cardId != null) {
-      await prefs.setInt('card_id', cardId);
-    } else {
-      await prefs.remove('card_id');
-    }
-    if (cardExpiresAt != null) {
-      await prefs.setString('card_expires_at', cardExpiresAt);
-    } else {
-      await prefs.remove('card_expires_at');
-    }
+    if (cardId != null) await prefs.setInt('card_id', cardId);
 
     final bool hasAccepted =
         prefs.getBool('has_accepted_terms_$userKey') ?? false;
 
     if (!mounted) return;
-
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (_) => hasAccepted
-            ? const LandingPromoPage()
-            : const TermsPage(),
+        builder: (_) => hasAccepted ? const LandingPromoPage() : const TermsPage(),
       ),
-          (route) => false,
+      (route) => false,
     );
   }
 
   void _snack(String msg, Color color) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content:         Text(msg, style: GoogleFonts.poppins(fontSize: 13, color: Colors.white)),
+      content: Text(msg, style: AppTheme.body.copyWith(color: Colors.white, fontSize: 13)),
       backgroundColor: color,
-      behavior:        SnackBarBehavior.floating,
-      shape:           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
-      body: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) SystemNavigator.pop();
-        },
-        child: FadeTransition(
-          opacity: _fadeAnim,
-          child: SlideTransition(
-            position: _slideAnim,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-
-                  // ── PURPLE HERO SECTION ────────────────────────────
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin:  Alignment.topLeft,
-                        end:    Alignment.bottomRight,
-                        colors: [_purple, Color(0xFF5A0EA0)],
-                      ),
-                    ),
-                    child: Stack(
+      backgroundColor: AppTheme.background,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/prompt_image.png',
+              fit: BoxFit.cover,
+              color: Colors.black.withOpacity(0.4),
+              colorBlendMode: BlendMode.darken,
+            ),
+          ),
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(color: Colors.black.withOpacity(0.1)),
+            ),
+          ),
+          SafeArea(
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SlideTransition(
+                position: _slideAnim,
+                child: Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Positioned(top: -30, right: -30,
-                            child: Container(width: 130, height: 130,
-                                decoration: BoxDecoration(shape: BoxShape.circle,
-                                    color: Colors.white.withValues(alpha: 0.06)))),
-                        Positioned(bottom: 20, left: -20,
-                            child: Container(width: 90, height: 90,
-                                decoration: BoxDecoration(shape: BoxShape.circle,
-                                    color: Colors.white.withValues(alpha: 0.05)))),
-                        SafeArea(
-                          bottom: false,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 40, 24, 56),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Center(
-                                  child: Container(
-                                    width: 90, height: 90,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white.withValues(alpha: 0.30), width: 2),
-                                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.20), blurRadius: 24, offset: const Offset(0, 8))],
-                                    ),
-                                    child: Image.asset('assets/images/maps_logo.png', fit: BoxFit.cover, width: 90, height: 90,
-                                        errorBuilder: (_, _, _) => Container(
-                                            color: Colors.white.withValues(alpha: 0.15),
-                                            child: const Icon(Icons.local_cafe_rounded, color: Colors.white, size: 36))),
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                Text('Lucky Boba', textAlign: TextAlign.center,
-                                    style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, height: 1.1)),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: _orange.withValues(alpha: 0.22),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: _orange.withValues(alpha: 0.55), width: 1.2),
-                                  ),
-                                  child: Text('CUSTOMER APP',
-                                      style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFFFFD580), letterSpacing: 1.8)),
+                        Hero(
+                          tag: 'app_logo',
+                          child: Container(
+                            width: 100, height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primary.withOpacity(0.3),
+                                  blurRadius: 30,
+                                  spreadRadius: 5,
                                 ),
                               ],
+                              border: Border.all(color: Colors.white, width: 3),
+                            ),
+                            child: ClipOval(
+                              child: Image.asset('assets/images/lucky_logo.jpg', fit: BoxFit.cover),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // ── FLOATING WHITE CARD ────────────────────────────
-                  Transform.translate(
-                    offset: const Offset(0, -24),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(26),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.10), blurRadius: 32, offset: const Offset(0, 8))],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Welcome 👋', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: _textDark)),
-                            const SizedBox(height: 4),
-                            Text('Sign in to continue to Lucky Boba', style: GoogleFonts.poppins(fontSize: 13, color: _textMid)),
-                            const SizedBox(height: 24),
-
-                            _fieldLabel('Email Address'),
-                            const SizedBox(height: 7),
-                            _inputField(controller: _emailCtrl, hint: 'name@luckyboba.com', icon: Icons.mail_outline_rounded, isPassword: false),
-                            const SizedBox(height: 16),
-
-                            _fieldLabel('Password'),
-                            const SizedBox(height: 7),
-                            _inputField(controller: _passwordCtrl, hint: '••••••••', icon: Icons.lock_outline_rounded, isPassword: true),
-                            const SizedBox(height: 28),
-
-                            SizedBox(
-                              width: double.infinity, height: 54,
-                              child: ElevatedButton(
-                                onPressed: _loading ? null : _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent, shadowColor: Colors.transparent,
-                                  disabledBackgroundColor: Colors.transparent,
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                ),
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    gradient: _loading ? null : const LinearGradient(colors: [_purple, _purpleLight]),
-                                    color: _loading ? _purple.withValues(alpha: 0.5) : null,
-                                    borderRadius: BorderRadius.circular(14),
-                                    boxShadow: _loading ? [] : [BoxShadow(color: _purple.withValues(alpha: 0.40), blurRadius: 16, offset: const Offset(0, 6))],
+                        const SizedBox(height: 16),
+                        Text('Lucky Boba', style: AppTheme.heading.copyWith(color: Colors.white, fontSize: 32)),
+                        Text('Premium Milktea Experience', style: AppTheme.body.copyWith(color: Colors.white70, letterSpacing: 2, fontSize: 12, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 48),
+                        Container(
+                          padding: const EdgeInsets.all(28),
+                          decoration: AppTheme.glassDecoration(borderRadius: 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Sign In', style: AppTheme.subHeading.copyWith(color: Colors.white, fontSize: 22)),
+                              const SizedBox(height: 8),
+                              Text('Access your favorite boba treats', style: AppTheme.body.copyWith(color: Colors.white60, fontSize: 13)),
+                              const SizedBox(height: 32),
+                              _inputField(controller: _emailCtrl, hint: 'Email Address', icon: Icons.alternate_email_rounded, isPassword: false),
+                              const SizedBox(height: 16),
+                              _inputField(controller: _passwordCtrl, hint: 'Password', icon: Icons.lock_open_rounded, isPassword: true),
+                              const SizedBox(height: 32),
+                              SizedBox(
+                                width: double.infinity, height: 58,
+                                child: ElevatedButton(
+                                  onPressed: _loading ? null : _handleLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.secondary,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    elevation: 0,
                                   ),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    child: _loading
-                                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                                        : Text('Sign In', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
-                                  ),
+                                  child: _loading
+                                      ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 3)
+                                      : Text('Continue', style: AppTheme.buttonText.copyWith(fontSize: 16)),
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        Row(children: [
+                          Expanded(child: Divider(color: Colors.white24)),
+                          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text('OR CONNECT WITH', style: AppTheme.body.copyWith(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w700))),
+                          Expanded(child: Divider(color: Colors.white24)),
+                        ]),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _socialIconBtn(icon: FontAwesomeIcons.google, color: Colors.white, onTap: _googleLoading ? () {} : _handleGoogleSignIn, isLoading: _googleLoading),
+                            const SizedBox(width: 20),
+                            _socialIconBtn(icon: FontAwesomeIcons.facebookF, color: const Color(0xFF1877F2), onTap: _facebookLoading ? () {} : _handleFacebookSignIn, isLoading: _facebookLoading),
+                          ],
+                        ),
+                        const SizedBox(height: 48),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Don't have an account? ", style: AppTheme.body.copyWith(color: Colors.white70)),
+                            GestureDetector(
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupPage())),
+                              child: Text('Register Now', style: AppTheme.body.copyWith(color: AppTheme.secondary, fontWeight: FontWeight.w800)),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-
-                  // ── SOCIAL + SIGN UP ───────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: Column(
-                      children: [
-                        Row(children: [
-                          Expanded(child: Divider(color: _border, thickness: 1)),
-                          Padding(padding: const EdgeInsets.symmetric(horizontal: 14),
-                              child: Text('OR', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: _textMid))),
-                          Expanded(child: Divider(color: _border, thickness: 1)),
-                        ]),
-                        const SizedBox(height: 16),
-
-                        GestureDetector(
-                          onTap: _googleLoading ? null : _handleGoogleSignIn,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: Colors.white, borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: _border, width: 1),
-                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 3))],
-                            ),
-                            child: _googleLoading
-                                ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF555555))))
-                                : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                              FaIcon(FontAwesomeIcons.google, color: const Color(0xFF555555), size: 16),
-                              const SizedBox(width: 10),
-                              Text('Continue with Google', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: _textDark)),
-                            ]),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        _socialBtn(
-                          icon: FontAwesomeIcons.facebookF, label: 'Continue with Facebook',
-                          color: const Color(0xFF1877F2),
-                          onTap: _facebookLoading ? () {} : _handleFacebookSignIn,
-                          isLoading: _facebookLoading,
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text("Don't have an account? ", style: GoogleFonts.poppins(fontSize: 13, color: _textMid)),
-                          GestureDetector(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupPage())),
-                            child: Text('Sign Up', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: _orange,
-                                decoration: TextDecoration.underline, decorationColor: _orange)),
-                          ),
-                        ]),
-                        const SizedBox(height: 36),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
-
-  Widget _fieldLabel(String text) => Text(text,
-      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: _textDark));
 
   Widget _inputField({required TextEditingController controller, required String hint, required IconData icon, required bool isPassword}) {
     return TextField(
-      controller: controller, obscureText: isPassword && _obscure,
-      style: GoogleFonts.poppins(fontSize: 14, color: _textDark),
-      decoration: InputDecoration(
-        hintText: hint, hintStyle: GoogleFonts.poppins(color: _textMid, fontSize: 14),
-        filled: true, fillColor: _surface,
-        prefixIcon: Icon(icon, color: _textMid, size: 20),
-        suffixIcon: isPassword ? GestureDetector(
-            onTap: () => setState(() => _obscure = !_obscure),
-            child: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: _textMid, size: 20)) : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border:        OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _border, width: 1)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _purple, width: 1.5)),
+      controller: controller,
+      obscureText: isPassword && _obscure,
+      style: AppTheme.body.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
+      decoration: AppTheme.inputStyle(hint: hint, icon: icon, suffixIcon: isPassword ? IconButton(onPressed: () => setState(() => _obscure = !_obscure), icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.white70, size: 20)) : null).copyWith(
+        fillColor: Colors.white.withOpacity(0.1),
+        hintStyle: AppTheme.body.copyWith(color: Colors.white38, fontSize: 14),
+        prefixIcon: Icon(icon, color: Colors.white70, size: 20),
       ),
     );
   }
 
-  Widget _socialBtn({required IconData icon, required String label, required Color color, required VoidCallback onTap, bool isLoading = false}) {
+  Widget _socialIconBtn({required IconData icon, required Color color, required VoidCallback onTap, bool isLoading = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: _border, width: 1),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 3))]),
+        width: 64, height: 64,
+        decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), shape: BoxShape.circle, border: Border.all(color: Colors.white24, width: 1.5)),
         child: isLoading
-            ? Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: color)))
-            : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          FaIcon(icon, color: color, size: 16),
-          const SizedBox(width: 10),
-          Text(label, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: _textDark)),
-        ]),
+            ? Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: color, strokeWidth: 2.5)))
+            : Center(child: FaIcon(icon, color: color, size: 22)),
       ),
     );
   }
