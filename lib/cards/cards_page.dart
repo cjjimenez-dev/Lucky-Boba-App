@@ -31,12 +31,24 @@ class CardModel {
     List<int>? months;
     final raw = json['available_months'];
     if (raw != null && raw.toString().isNotEmpty && raw.toString() != 'null') {
+      final rawStr = raw.toString();
       try {
-        final List<dynamic> decoded = jsonDecode(raw.toString());
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        months = decoded.map((e) => monthNames.indexOf(e.toString()) + 1).where((m) => m > 0).toList();
+        final decoded = jsonDecode(rawStr);
+        if (decoded is List) {
+          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          months = decoded.map((e) {
+            final eStr = e.toString().trim();
+            // Handle numeric strings like "6" or ints like 6
+            final asInt = int.tryParse(eStr);
+            if (asInt != null && asInt > 0 && asInt <= 12) return asInt;
+            // Handle "Jan", "Feb", etc.
+            final idx = monthNames.indexWhere((m) => eStr.toLowerCase().startsWith(m.toLowerCase()));
+            if (idx >= 0) return idx + 1;
+            return 0;
+          }).where((m) => m > 0).toList();
+        }
       } catch (_) {
-        months = raw.toString()
+        months = rawStr
             .split(',')
             .map((e) => int.tryParse(e.trim()) ?? 0)
             .where((m) => m > 0)
@@ -46,14 +58,25 @@ class CardModel {
     final double priceRaw =
     (json['price_raw'] ?? json['price'] ?? 0).toDouble();
 
-    // ── FIX: column is 'image', not 'image_url' ──────────────────────────
-    final String rawImage =
-    (json['image_url'] ?? json['image'] ?? '').toString();
-    final String imageUrl = rawImage.isEmpty
-        ? ''
-        : rawImage.startsWith('http')
-        ? rawImage
-        : '${AppConfig.storageUrl}/$rawImage';
+    final String rawImage = (json['image_url'] ?? json['image'] ?? '').toString();
+    String imageUrl = '';
+    
+    if (rawImage.isNotEmpty) {
+      if (rawImage.startsWith('http')) {
+        // If the backend returned a full URL (e.g. http://localhost:8000/storage/...),
+        // override it with our flutter app's configured backend host to avoid unreachable references.
+        final uri = Uri.tryParse(rawImage);
+        if (uri != null && uri.path.startsWith('/storage/')) {
+          imageUrl = '${AppConfig.storageUrl}/${uri.path.substring(9)}';
+        } else {
+          imageUrl = rawImage;
+        }
+      } else if (rawImage.startsWith('/')) {
+        imageUrl = '${AppConfig.baseUrl}$rawImage';
+      } else {
+        imageUrl = '${AppConfig.storageUrl}/$rawImage';
+      }
+    }
 
     return CardModel(
       id:              json['id'] as int,
