@@ -839,7 +839,7 @@ class _BranchPickerSheetState extends State<_BranchPickerSheet> {
                         await prefs.setString('selected_branch_name', store['name'] as String);
                       }
                       
-                      if (!mounted) return;
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                       Navigator.push(
                         context,

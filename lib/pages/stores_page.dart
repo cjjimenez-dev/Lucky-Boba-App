@@ -621,7 +621,7 @@ class _StoresPageState extends State<StoresPage> {
                           await prefs.setString('selected_branch_name', store['name'] as String);
                         }
 
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
