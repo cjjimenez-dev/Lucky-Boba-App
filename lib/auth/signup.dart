@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 import '../config/app_config.dart';
 import '../utils/app_theme.dart';
 
@@ -137,14 +138,28 @@ class _SignupPageState extends State<SignupPage>
             child: Image.asset(
               'assets/images/prompt_image.png',
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.45),
               colorBlendMode: BlendMode.darken,
             ),
           ),
           Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.primary.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(color: Colors.black.withOpacity(0.1)),
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(color: Colors.black.withValues(alpha: 0.15)),
             ),
           ),
           SafeArea(
@@ -166,11 +181,11 @@ class _SignupPageState extends State<SignupPage>
                             child: Container(
                               width: 42, height: 42,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.white24, width: 1.5),
                               ),
-                              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
                             ),
                           ),
                         ),
@@ -182,7 +197,7 @@ class _SignupPageState extends State<SignupPage>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               boxShadow: [
-                                BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+                                BoxShadow(color: AppTheme.primary.withValues(alpha: 0.4), blurRadius: 40, spreadRadius: 8),
                               ],
                               border: Border.all(color: Colors.white, width: 2.5),
                             ),
@@ -192,8 +207,9 @@ class _SignupPageState extends State<SignupPage>
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Text('Lucky Boba', style: AppTheme.heading.copyWith(color: Colors.white, fontSize: 28)),
-                        Text('Create your profile', style: AppTheme.body.copyWith(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+                        Text('Lucky Boba', style: GoogleFonts.outfit(color: Colors.white, fontSize: 38, fontWeight: FontWeight.w900, letterSpacing: -1)),
+                        const SizedBox(height: 4),
+                        Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)), child: Text('CREATE YOUR PROFILE', style: GoogleFonts.outfit(color: Colors.white70, letterSpacing: 2.5, fontSize: 8, fontWeight: FontWeight.w800))),
                         const SizedBox(height: 32),
                         Container(
                           padding: const EdgeInsets.all(28),
@@ -259,7 +275,7 @@ class _SignupPageState extends State<SignupPage>
       keyboardType: keyboardType,
       style: AppTheme.body.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
       decoration: AppTheme.inputStyle(hint: hint, icon: icon, suffixIcon: isPassword ? IconButton(onPressed: onToggle, icon: Icon(obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.white70, size: 20)) : null).copyWith(
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         hintStyle: AppTheme.body.copyWith(color: Colors.white38, fontSize: 13),
         prefixIcon: Icon(icon, color: Colors.white70, size: 20),
       ),

@@ -161,7 +161,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     try {
       final prefs        = await SharedPreferences.getInstance();
       final token        = prefs.getString('session_token') ?? '';
-      final customerName = prefs.getString('user_name') ?? 'App Customer';
+      final customerName = prefs.getString('user_name') ?? 'Guest';
       final customerCode = prefs.getString('user_code') ?? '';
       final userId       = prefs.getInt('user_id') ?? 0;
 
@@ -184,7 +184,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'payment_method': _selectedPayment.toLowerCase(),
         'order_type':     _orderType.toLowerCase().replaceAll(' ', '_'),
         'branch_name':    widget.selectedStore,
-        'cashier_name':   'Customer App',
+        'cashier_name':   'Mobile Checkout',
         'pax_senior':     0,
         'pax_pwd':        0,
         'cash_tendered':  cartTotal,

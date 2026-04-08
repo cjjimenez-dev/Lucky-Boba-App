@@ -77,7 +77,7 @@ class LuckyBobaApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Lucky Boba App',
+      title: 'Lucky Boba',
       theme: ThemeData(
         useMaterial3: true,
         textTheme:    GoogleFonts.poppinsTextTheme(),
@@ -188,11 +188,13 @@ class _LoginPageState extends State<LoginPage>
       if (response.statusCode == 200) {
         await _saveUserAndNavigate(jsonDecode(response.body), googleUser.email);
       } else {
-        _snack('Google Sign-In failed', Colors.redAccent);
+        final body = jsonDecode(response.body);
+        _snack('Sign-In Error: ${body['message'] ?? 'Failed to authenticate'}', Colors.redAccent);
       }
     } catch (e) {
       if (mounted) setState(() => _googleLoading = false);
-      _snack('Google Sign-In failed', Colors.redAccent);
+      debugPrint('❌ Google Sign-In Error: $e');
+      _snack('Google Auth Error: ${e.toString().split(':').last.trim()}', Colors.redAccent);
     }
   }
 
@@ -243,7 +245,7 @@ class _LoginPageState extends State<LoginPage>
       if (!mounted) return;
       setState(() => _facebookLoading = false);
       if (firebaseUser == null) {
-        _snack('Facebook Sign-In failed', Colors.redAccent);
+        _snack('Facebook Sign-In failed (No User)', Colors.redAccent);
         return;
       }
       await _saveUserAndNavigate({
@@ -252,9 +254,10 @@ class _LoginPageState extends State<LoginPage>
           'role': 'customer', 'has_active_card': false,
         }
       }, fbEmail);
-    } catch (_) {
+    } catch (e) {
       if (mounted) setState(() => _facebookLoading = false);
-      _snack('Facebook Sign-In failed', Colors.redAccent);
+      debugPrint('❌ Facebook Sign-In Error: $e');
+      _snack('Facebook Auth Error: ${e.toString().split(':').last.trim()}', Colors.redAccent);
     }
   }
 
@@ -324,14 +327,28 @@ class _LoginPageState extends State<LoginPage>
             child: Image.asset(
               'assets/images/prompt_image.png',
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.45),
               colorBlendMode: BlendMode.darken,
             ),
           ),
           Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.primary.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(color: Colors.black.withOpacity(0.1)),
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(color: Colors.black.withValues(alpha: 0.15)),
             ),
           ),
           SafeArea(
@@ -354,9 +371,9 @@ class _LoginPageState extends State<LoginPage>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.primary.withOpacity(0.3),
-                                  blurRadius: 30,
-                                  spreadRadius: 5,
+                                  color: AppTheme.primary.withValues(alpha: 0.4),
+                                  blurRadius: 40,
+                                  spreadRadius: 8,
                                 ),
                               ],
                               border: Border.all(color: Colors.white, width: 3),
@@ -367,8 +384,9 @@ class _LoginPageState extends State<LoginPage>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('Lucky Boba', style: AppTheme.heading.copyWith(color: Colors.white, fontSize: 32)),
-                        Text('Premium Milktea Experience', style: AppTheme.body.copyWith(color: Colors.white70, letterSpacing: 2, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text('Lucky Boba', style: GoogleFonts.outfit(color: Colors.white, fontSize: 42, fontWeight: FontWeight.w900, letterSpacing: -1)),
+                        const SizedBox(height: 4),
+                        Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: Text('PREMIUM MILKTEA EXPERIENCE', style: GoogleFonts.outfit(color: Colors.white70, letterSpacing: 3, fontSize: 8, fontWeight: FontWeight.w800))),
                         const SizedBox(height: 48),
                         Container(
                           padding: const EdgeInsets.all(28),
@@ -446,7 +464,7 @@ class _LoginPageState extends State<LoginPage>
       obscureText: isPassword && _obscure,
       style: AppTheme.body.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
       decoration: AppTheme.inputStyle(hint: hint, icon: icon, suffixIcon: isPassword ? IconButton(onPressed: () => setState(() => _obscure = !_obscure), icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Colors.white70, size: 20)) : null).copyWith(
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         hintStyle: AppTheme.body.copyWith(color: Colors.white38, fontSize: 14),
         prefixIcon: Icon(icon, color: Colors.white70, size: 20),
       ),
@@ -458,7 +476,7 @@ class _LoginPageState extends State<LoginPage>
       onTap: onTap,
       child: Container(
         width: 64, height: 64,
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), shape: BoxShape.circle, border: Border.all(color: Colors.white24, width: 1.5)),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), shape: BoxShape.circle, border: Border.all(color: Colors.white24, width: 1.5)),
         child: isLoading
             ? Center(child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: color, strokeWidth: 2.5)))
             : Center(child: FaIcon(icon, color: color, size: 22)),

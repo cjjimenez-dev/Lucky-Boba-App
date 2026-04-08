@@ -35,27 +35,40 @@ class AppTheme {
   // ── DECORATIONS ────────────────────────────────────────────────────────────
   static BoxDecoration glassDecoration({
     double borderRadius = 24,
-    double borderOpacity = 0.2,
-    double blur = 10,
+    double borderAlpha = 0.15,
+    double blur = 15,
+    double opacity = 0.08,
   }) {
     return BoxDecoration(
-      color: Colors.white.withOpacity(0.15),
+      color: Colors.white.withValues(alpha: opacity),
       borderRadius: BorderRadius.circular(borderRadius),
       border: Border.all(
-        color: Colors.white.withOpacity(borderOpacity),
-        width: 1.5,
+        color: Colors.white.withValues(alpha: borderAlpha),
+        width: 1.0,
       ),
     );
   }
+
+  static BoxDecoration cleanShadow = BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(24),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.04),
+        blurRadius: 16,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  );
 
   static BoxDecoration premiumCard = BoxDecoration(
     color:        Colors.white,
     borderRadius: BorderRadius.circular(28),
     boxShadow: [
       BoxShadow(
-        color:      primary.withOpacity(0.08),
-        blurRadius: 24,
-        offset:     const Offset(0, 10),
+        color:      primary.withValues(alpha: 0.05),
+        blurRadius: 20,
+        offset:     const Offset(0, 8),
       ),
     ],
   );
@@ -95,9 +108,9 @@ class AppTheme {
   }) {
     return InputDecoration(
       hintText:  hint,
-      hintStyle: GoogleFonts.poppins(color: textMid.withOpacity(0.5), fontSize: 14),
+      hintStyle: GoogleFonts.poppins(color: textMid.withValues(alpha: 0.5), fontSize: 14),
       filled:    true,
-      fillColor: Colors.white.withOpacity(0.8),
+      fillColor: Colors.white.withValues(alpha: 0.8),
       prefixIcon: Icon(icon, color: primary, size: 22),
       suffixIcon: suffixIcon,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -107,7 +120,7 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide:   BorderSide(color: primary.withOpacity(0.1), width: 1.5),
+        borderSide:   BorderSide(color: primary.withValues(alpha: 0.1), width: 1.5),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../utils/app_theme.dart';
 
 class CustomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -12,33 +14,38 @@ class CustomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color deepPurple = const Color(0xFF3B2063);
-
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(left: 40, right: 40, bottom: 20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(35),
-            boxShadow: [
-              BoxShadow(
-                color: deepPurple.withValues(alpha: 0.15),
-                blurRadius: 20,
-                spreadRadius: 5,
-                offset: const Offset(0, 10),
+        padding: const EdgeInsets.only(left: 30, right: 30, bottom: 24),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(35),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: AppTheme.glassDecoration(
+                borderRadius: 35,
+                opacity: 0.15,
+                borderAlpha: 0.2,
+              ).copyWith(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(index: 0, icon: Icons.storefront_rounded, deepPurple: deepPurple),
-              _buildNavItem(index: 1, icon: Icons.local_drink_rounded, deepPurple: deepPurple),
-              _buildNavItem(index: 2, icon: Icons.credit_card_rounded, deepPurple: deepPurple),
-              _buildNavItem(index: 3, icon: Icons.map_rounded, deepPurple: deepPurple),
-            ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildNavItem(index: 0, icon: Icons.storefront_rounded),
+                  _buildNavItem(index: 1, icon: Icons.local_drink_rounded),
+                  _buildNavItem(index: 2, icon: Icons.credit_card_rounded),
+                  _buildNavItem(index: 3, icon: Icons.map_rounded),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -48,31 +55,31 @@ class CustomNavBar extends StatelessWidget {
   Widget _buildNavItem({
     required int index,
     required IconData icon,
-    required Color deepPurple,
   }) {
     bool isSelected = selectedIndex == index;
+    final Color color = isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTap: () => onTabChange(index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutBack,
+        curve: Curves.easeOutCubic,
         width: 55,
         height: 55,
         decoration: BoxDecoration(
-          color: isSelected ? deepPurple : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
+          color: isSelected ? AppTheme.primary.withValues(alpha: 0.8) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
           border: isSelected
-              ? null
-              : Border.all(color: deepPurple.withValues(alpha: 0.2), width: 1.5),
+              ? Border.all(color: Colors.white24)
+              : null,
         ),
         child: Icon(
           icon,
-          color: isSelected ? Colors.white : deepPurple.withValues(alpha: 0.6),
+          color: color,
           size: 26,
         ),
       ),
     );
   }
-}
+}
